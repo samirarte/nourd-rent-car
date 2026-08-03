@@ -25,3 +25,4 @@ local.db
 
 # jetbrains setting folder
 .idea/
+.vercel
