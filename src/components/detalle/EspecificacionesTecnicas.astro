@@ -1,0 +1,50 @@
+---
+/**
+ * EspecificacionesTecnicas — Grid de specs del vehículo con iconos.
+ */
+interface Props {
+  plazas: number;
+  transmision: string;
+  combustible: string;
+  categoria: string;
+}
+
+const { plazas, transmision, combustible, categoria } = Astro.props;
+
+const specs = [
+  {
+    icono: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5" aria-hidden="true"><path d="M12 2a5 5 0 1 1 0 10A5 5 0 0 1 12 2zm0 12c5.523 0 10 2.239 10 5v1H2v-1c0-2.761 4.477-5 10-5z"/></svg>`,
+    etiqueta: 'Plazas',
+    valor: `${plazas} personas`,
+  },
+  {
+    icono: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>`,
+    etiqueta: 'Transmisión',
+    valor: transmision,
+  },
+  {
+    icono: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5" aria-hidden="true"><path d="M3 17h1.5a2.5 2.5 0 0 0 5 0h6a2.5 2.5 0 0 0 5 0H22M5 17V7l3-4h8l1 2v2h2l2 4v6"/></svg>`,
+    etiqueta: 'Combustible',
+    valor: combustible,
+  },
+  {
+    icono: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5" aria-hidden="true"><rect width="18" height="14" x="3" y="5" rx="2"/><path d="m3 9 9 6 9-6"/></svg>`,
+    etiqueta: 'Categoría',
+    valor: categoria,
+  },
+];
+---
+
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4" role="list" aria-label="Especificaciones técnicas">
+  {specs.map(({ icono, etiqueta, valor }) => (
+    <div
+      role="listitem"
+      class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl
+             bg-[var(--color-primary-light)] border border-white/10 text-center"
+    >
+      <span class="text-[var(--color-accent)]" set:html={icono} />
+      <span class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest">{etiqueta}</span>
+      <span class="text-white font-semibold text-sm">{valor}</span>
+    </div>
+  ))}
+</div>

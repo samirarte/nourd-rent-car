@@ -1,0 +1,478 @@
+---
+/**
+ * Panel de administración — /admin
+ * Lista la flota completa y permite crear, editar y eliminar vehículos.
+ */
+export const prerender = false;
+
+import { obtenerTodosLosVehiculos } from '../../lib/vehiculos';
+
+const vehiculos = await obtenerTodosLosVehiculos();
+
+const categorias  = ['SUV', 'Mercedes', 'Dacia', 'Berlina', 'Utilitario', 'Otro'];
+const transmisiones = ['Automático', 'Manual'];
+const combustibles  = ['Gasolina', 'Diésel', 'Híbrido', 'Eléctrico'];
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administración — Nourd Rent Car</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #1A1A2E;
+      --bg2:      #16213E;
+      --accent:   #C9A84C;
+      --accentH:  #B8973D;
+      --text:     #F5F5F5;
+      --muted:    #9CA3AF;
+      --success:  #25D366;
+      --danger:   #EF4444;
+      --dangerH:  #DC2626;
+      --border:   rgba(255,255,255,0.08);
+      --radius:   0.625rem;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Topbar ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 40;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; height: 60px;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+    }
+    .topbar-logo { display: flex; align-items: center; gap: 0.75rem; }
+    .topbar-logo img { height: 36px; width: auto; }
+    .topbar-logo span { font-size: 0.85rem; color: var(--muted); }
+    .topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+    /* ── Botones ── */
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem;
+           border-radius: var(--radius); border: none; cursor: pointer; font-size: 0.85rem;
+           font-weight: 600; transition: background 0.15s, transform 0.1s; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary  { background: var(--accent);  color: var(--bg); }
+    .btn-primary:hover  { background: var(--accentH); }
+    .btn-ghost    { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover    { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .btn-danger   { background: var(--danger);  color: #fff; }
+    .btn-danger:hover   { background: var(--dangerH); }
+    .btn-sm       { padding: 0.35rem 0.75rem; font-size: 0.78rem; }
+    .btn-success  { background: var(--success); color: #fff; }
+
+    /* ── Layout ── */
+    .container { max-width: 1280px; margin: 0 auto; padding: 1.5rem; }
+
+    /* ── Stats ── */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat  { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+             padding: 1rem 1.25rem; }
+    .stat-valor { font-size: 1.75rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Tabla ── */
+    .tabla-wrap { overflow-x: auto; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { padding: 0.75rem 1rem; text-align: left; color: var(--muted); font-size: 0.72rem;
+         text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+             font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge-si  { background: rgba(37,211,102,0.15); color: var(--success); }
+    .badge-no  { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .badge-cat { background: rgba(201,168,76,0.15); color: var(--accent); }
+    .acciones  { display: flex; gap: 0.5rem; flex-wrap: nowrap; }
+  </style>
+</head>
+
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <img src="/logo.svg" alt="Nourd Rent Car" />
+      <span>/ Admin</span>
+    </div>
+    <div class="topbar-actions">
+      <a href="/" class="btn btn-ghost btn-sm" target="_blank">Ver web ↗</a>
+      <form method="POST" action="/api/admin/login?accion=logout" style="display:inline">
+        <button type="submit" class="btn btn-ghost btn-sm">Cerrar sesión</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-valor">{vehiculos.length}</div>
+        <div class="stat-label">Total vehículos</div>
+      </div>
+      <div class="stat">
+        <div class="stat-valor">{vehiculos.filter(v => v.disponible).length}</div>
+        <div class="stat-label">Disponibles</div>
+      </div>
+      <div class="stat">
+        <div class="stat-valor">{vehiculos.filter(v => v.destacado).length}</div>
+        <div class="stat-label">Destacados</div>
+      </div>
+      <div class="stat">
+        <div class="stat-valor">{[...new Set(vehiculos.map(v => v.categoria))].length}</div>
+        <div class="stat-label">Categorías</div>
+      </div>
+    </div>
+
+    <!-- Encabezado + botón añadir -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+      <h1 style="font-size:1.25rem; font-weight:700;">Flota de vehículos</h1>
+      <button class="btn btn-primary" onclick="abrirFormulario()">+ Añadir vehículo</button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Sin conductor</th>
+            <th>Con conductor</th>
+            <th>Plazas</th>
+            <th>Disponible</th>
+            <th>Destacado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-vehiculos">
+          {vehiculos.map((v) => (
+            <tr data-id={v.id}>
+              <td style="color:var(--muted)">{v.id}</td>
+              <td>
+                <div style="font-weight:600">{v.nombre}</div>
+                <div style="font-size:0.72rem; color:var(--muted)">{v.slug}</div>
+              </td>
+              <td><span class="badge badge-cat">{v.categoria}</span></td>
+              <td>{v.precioSinConductor} €/día</td>
+              <td>{v.precioConConductor} €/día</td>
+              <td>{v.plazas}</td>
+              <td><span class={`badge ${v.disponible ? 'badge-si' : 'badge-no'}`}>{v.disponible ? 'Sí' : 'No'}</span></td>
+              <td><span class={`badge ${v.destacado ? 'badge-si' : 'badge-no'}`}>{v.destacado ? 'Sí' : 'No'}</span></td>
+              <td>
+                <div class="acciones">
+                  <button class="btn btn-ghost btn-sm"
+                    onclick={`editarVehiculo(${JSON.stringify(v)})`}>Editar</button>
+                  <button class="btn btn-danger btn-sm"
+                    onclick={`confirmarEliminar(${v.id}, '${v.nombre.replace(/'/g, "\\'")}')`}>Eliminar</button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal formulario -->
+  <div id="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+       z-index:100; overflow-y:auto; padding:2rem 1rem;">
+    <div style="background:var(--bg2); border:1px solid var(--border); border-radius:1rem;
+                max-width:640px; margin:0 auto; padding:2rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h2 id="modal-titulo" style="font-size:1.1rem; font-weight:700;">Añadir vehículo</h2>
+        <button onclick="cerrarModal()" style="background:none; border:none; color:var(--muted);
+                font-size:1.5rem; cursor:pointer; line-height:1;" aria-label="Cerrar">&times;</button>
+      </div>
+
+      <form id="form-vehiculo" style="display:grid; gap:1rem;">
+        <input type="hidden" id="f-id" value="" />
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div>
+            <label for="f-nombre" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">Nombre *</label>
+            <input id="f-nombre" type="text" required placeholder="Mercedes Clase E"
+                   style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                          border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none;" />
+          </div>
+          <div>
+            <label for="f-slug" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">Slug * <span style="font-weight:400; text-transform:none">(URL)</span></label>
+            <input id="f-slug" type="text" required placeholder="mercedes-clase-e"
+                   style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                          border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none;" />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+          <div>
+            <label for="f-categoria" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">Categoría *</label>
+            <select id="f-categoria" required
+                    style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                           border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none; cursor:pointer;">
+              {categorias.map(c => <option value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label for="f-transmision" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">Transmisión</label>
+            <select id="f-transmision"
+                    style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                           border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none; cursor:pointer;">
+              {transmisiones.map(t => <option value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label for="f-combustible" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">Combustible</label>
+            <select id="f-combustible"
+                    style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                           border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none; cursor:pointer;">
+              {combustibles.map(c => <option value={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+          <div>
+            <label for="f-precio-sc" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">€/día sin conductor *</label>
+            <input id="f-precio-sc" type="number" min="0" step="0.01" required placeholder="45"
+                   style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                          border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none;" />
+          </div>
+          <div>
+            <label for="f-precio-cc" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">€/día con conductor *</label>
+            <input id="f-precio-cc" type="number" min="0" step="0.01" required placeholder="75"
+                   style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                          border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none;" />
+          </div>
+          <div>
+            <label for="f-plazas" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">Plazas *</label>
+            <input id="f-plazas" type="number" min="1" max="20" required placeholder="5"
+                   style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                          border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none;" />
+          </div>
+        </div>
+
+        <div>
+          <label for="f-imagen" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">URL imagen principal *</label>
+          <input id="f-imagen" type="text" required placeholder="/vehiculos/mi-vehiculo.jpg"
+                 style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                        border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none;" />
+        </div>
+
+        <div>
+          <label for="f-descripcion" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">Descripción corta *</label>
+          <input id="f-descripcion" type="text" required placeholder="Descripción breve para la tarjeta"
+                 style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                        border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none;" />
+        </div>
+
+        <div>
+          <label for="f-descripcion-larga" style="display:block; font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">Descripción completa *</label>
+          <textarea id="f-descripcion-larga" required rows="3" placeholder="Descripción completa para la página de detalle"
+                    style="width:100%; padding:0.6rem 0.8rem; background:var(--bg); border:1px solid var(--border);
+                           border-radius:var(--radius); color:var(--text); font-size:0.875rem; outline:none;
+                           resize:vertical; font-family:inherit;"></textarea>
+        </div>
+
+        <div style="display:flex; gap:1.5rem;">
+          <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.875rem; color:var(--muted);">
+            <input type="checkbox" id="f-disponible" checked
+                   style="width:1rem; height:1rem; accent-color:var(--success); cursor:pointer;" />
+            Disponible
+          </label>
+          <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.875rem; color:var(--muted);">
+            <input type="checkbox" id="f-destacado"
+                   style="width:1rem; height:1rem; accent-color:var(--accent); cursor:pointer;" />
+            Destacado en inicio
+          </label>
+        </div>
+
+        <div id="form-error" style="display:none; padding:0.6rem 0.8rem; background:rgba(239,68,68,0.1);
+             border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius); color:#F87171; font-size:0.825rem;"></div>
+
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end; padding-top:0.5rem;">
+          <button type="button" onclick="cerrarModal()" class="btn btn-ghost">Cancelar</button>
+          <button type="submit" id="btn-guardar" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal confirmación eliminar -->
+  <div id="modal-eliminar" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+       z-index:100; display:none; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:var(--bg2); border:1px solid var(--border); border-radius:1rem;
+                max-width:420px; width:100%; padding:2rem; text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:1rem;">⚠️</div>
+      <h2 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem;">¿Eliminar vehículo?</h2>
+      <p id="msg-eliminar" style="color:var(--muted); font-size:0.875rem; margin-bottom:1.5rem;"></p>
+      <div style="display:flex; gap:0.75rem; justify-content:center;">
+        <button onclick="cerrarModalEliminar()" class="btn btn-ghost">Cancelar</button>
+        <button id="btn-confirmar-eliminar" class="btn btn-danger">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ── Estado global ─────────────────────────────────────────────────────────
+  let idEliminar = null;
+
+  // ── Utilidades UI ─────────────────────────────────────────────────────────
+  function mostrarError(msg) {
+    const el = document.getElementById('form-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function ocultarError() {
+    const el = document.getElementById('form-error');
+    el.style.display = 'none';
+  }
+
+  // ── Modal formulario ──────────────────────────────────────────────────────
+  function abrirFormulario(vehiculo = null) {
+    const modal  = document.getElementById('modal-overlay');
+    const titulo = document.getElementById('modal-titulo');
+    const btn    = document.getElementById('btn-guardar');
+    ocultarError();
+
+    if (vehiculo) {
+      titulo.textContent = 'Editar vehículo';
+      btn.textContent    = 'Guardar cambios';
+      document.getElementById('f-id').value               = vehiculo.id;
+      document.getElementById('f-nombre').value           = vehiculo.nombre;
+      document.getElementById('f-slug').value             = vehiculo.slug;
+      document.getElementById('f-categoria').value        = vehiculo.categoria;
+      document.getElementById('f-transmision').value      = vehiculo.transmision;
+      document.getElementById('f-combustible').value      = vehiculo.combustible;
+      document.getElementById('f-precio-sc').value        = vehiculo.precioSinConductor;
+      document.getElementById('f-precio-cc').value        = vehiculo.precioConConductor;
+      document.getElementById('f-plazas').value           = vehiculo.plazas;
+      document.getElementById('f-imagen').value           = vehiculo.imagenPrincipal;
+      document.getElementById('f-descripcion').value      = vehiculo.descripcion;
+      document.getElementById('f-descripcion-larga').value = vehiculo.descripcionLarga;
+      document.getElementById('f-disponible').checked     = vehiculo.disponible;
+      document.getElementById('f-destacado').checked      = vehiculo.destacado;
+    } else {
+      titulo.textContent = 'Añadir vehículo';
+      btn.textContent    = 'Crear vehículo';
+      document.getElementById('form-vehiculo').reset();
+      document.getElementById('f-id').value      = '';
+      document.getElementById('f-disponible').checked = true;
+      document.getElementById('f-destacado').checked  = false;
+    }
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function editarVehiculo(vehiculo) { abrirFormulario(vehiculo); }
+
+  function cerrarModal() {
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Cerrar al hacer clic fuera del panel
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-overlay')) cerrarModal();
+  });
+
+  // ── Envío del formulario ──────────────────────────────────────────────────
+  document.getElementById('form-vehiculo').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ocultarError();
+
+    const id  = document.getElementById('f-id').value;
+    const btn = document.getElementById('btn-guardar');
+    btn.disabled   = true;
+    btn.textContent = 'Guardando…';
+
+    const datos = {
+      nombre:              document.getElementById('f-nombre').value.trim(),
+      slug:                document.getElementById('f-slug').value.trim(),
+      categoria:           document.getElementById('f-categoria').value,
+      transmision:         document.getElementById('f-transmision').value,
+      combustible:         document.getElementById('f-combustible').value,
+      precioSinConductor:  parseFloat(document.getElementById('f-precio-sc').value),
+      precioConConductor:  parseFloat(document.getElementById('f-precio-cc').value),
+      plazas:              parseInt(document.getElementById('f-plazas').value, 10),
+      imagenPrincipal:     document.getElementById('f-imagen').value.trim(),
+      descripcion:         document.getElementById('f-descripcion').value.trim(),
+      descripcionLarga:    document.getElementById('f-descripcion-larga').value.trim(),
+      disponible:          document.getElementById('f-disponible').checked,
+      destacado:           document.getElementById('f-destacado').checked,
+      imagenes:            [],
+    };
+
+    try {
+      const url    = id ? `/api/vehiculos/${id}` : '/api/vehiculos';
+      const method = id ? 'PUT' : 'POST';
+      const res    = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos),
+      });
+      const json = await res.json();
+      if (!res.ok) { mostrarError(json.error ?? 'Error desconocido'); return; }
+      cerrarModal();
+      window.location.reload();
+    } catch (err) {
+      mostrarError('Error de red. Inténtalo de nuevo.');
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = id ? 'Guardar cambios' : 'Crear vehículo';
+    }
+  });
+
+  // ── Confirmación de eliminación ───────────────────────────────────────────
+  function confirmarEliminar(id, nombre) {
+    idEliminar = id;
+    document.getElementById('msg-eliminar').textContent =
+      `Esta acción eliminará permanentemente el vehículo "${nombre}" y no se puede deshacer.`;
+    const modal = document.getElementById('modal-eliminar');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarModalEliminar() {
+    document.getElementById('modal-eliminar').style.display = 'none';
+    document.body.style.overflow = '';
+    idEliminar = null;
+  }
+
+  document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
+    if (!idEliminar) return;
+    const btn = document.getElementById('btn-confirmar-eliminar');
+    btn.disabled    = true;
+    btn.textContent = 'Eliminando…';
+    try {
+      const res  = await fetch(`/api/vehiculos/${idEliminar}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!res.ok) { alert(json.error ?? 'Error al eliminar'); return; }
+      cerrarModalEliminar();
+      window.location.reload();
+    } catch {
+      alert('Error de red. Inténtalo de nuevo.');
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Sí, eliminar';
+    }
+  });
+
+  // Generar slug automático desde el nombre
+  document.getElementById('f-nombre').addEventListener('input', (e) => {
+    const slugEl = document.getElementById('f-slug');
+    if (document.getElementById('f-id').value) return; // no sobreescribir en edición
+    slugEl.value = e.target.value
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+  });
+</script>
+</body>
+</html>

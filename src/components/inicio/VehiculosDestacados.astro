@@ -1,0 +1,52 @@
+---
+/**
+ * VehiculosDestacados — Sección de vehículos destacados en la página de inicio.
+ */
+import type { Vehiculo } from '../../types/vehiculo';
+import TarjetaVehiculo from '../catalogo/TarjetaVehiculo.astro';
+
+interface Props {
+  vehiculos: Vehiculo[];
+}
+
+const { vehiculos } = Astro.props;
+---
+
+<section class="py-20 bg-[var(--color-primary)]" aria-labelledby="titulo-destacados">
+  <div class="section-container">
+
+    <!-- Encabezado -->
+    <div class="text-center mb-12">
+      <p class="text-[var(--color-accent)] text-sm font-semibold uppercase tracking-widest mb-3">
+        Nuestra flota
+      </p>
+      <h2 id="titulo-destacados" class="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
+        Vehículos destacados
+      </h2>
+      <p class="text-[var(--color-text-muted)] max-w-xl mx-auto">
+        Selección de nuestros vehículos más populares. Disponibles con o sin conductor según tus necesidades.
+      </p>
+    </div>
+
+    <!-- Grid de tarjetas -->
+    {vehiculos.length > 0 ? (
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          aria-label="Vehículos destacados">
+        {vehiculos.map((v) => (
+          <li><TarjetaVehiculo vehiculo={v} /></li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-center text-[var(--color-text-muted)]">
+        No hay vehículos destacados en este momento.
+      </p>
+    )}
+
+    <!-- CTA -->
+    <div class="text-center mt-10">
+      <a href="/catalogo" class="btn-primary px-8 py-3">
+        Ver catálogo completo
+      </a>
+    </div>
+  </div>
+</section>

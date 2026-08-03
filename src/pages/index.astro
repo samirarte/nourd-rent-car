@@ -1,0 +1,21 @@
+---
+/**
+ * Página de inicio — Nourd Rent Car
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSeccion from '../components/inicio/HeroSeccion.astro';
+import VehiculosDestacados from '../components/inicio/VehiculosDestacados.astro';
+import PorQueElegirnos from '../components/inicio/PorQueElegirnos.astro';
+import { obtenerVehiculosDestacados } from '../lib/vehiculos';
+
+const vehiculosDestacados = await obtenerVehiculosDestacados();
+---
+
+<BaseLayout
+  titulo="Alquiler de Vehículos Premium"
+  descripcion="Nourd Rent Car — Alquiler de vehículos de lujo con y sin conductor. SUVs, Mercedes, Dacia y más. Reserva directa por WhatsApp."
+>
+  <HeroSeccion />
+  <VehiculosDestacados vehiculos={vehiculosDestacados} />
+  <PorQueElegirnos />
+</BaseLayout>

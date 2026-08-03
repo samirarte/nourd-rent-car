@@ -1,0 +1,24 @@
+---
+/**
+ * Badge — Etiqueta de categoría para tarjetas de vehículos.
+ */
+interface Props {
+  texto: string;
+  /** Variante de color: 'dorado' (defecto) | 'oscuro' | 'blanco' */
+  variante?: 'dorado' | 'oscuro' | 'blanco';
+}
+
+const { texto, variante = 'dorado' } = Astro.props;
+
+const clases: Record<string, string> = {
+  dorado: 'bg-[var(--color-accent)] text-[var(--color-primary)]',
+  oscuro: 'bg-[var(--color-primary)] text-[var(--color-accent)] border border-[var(--color-accent)]',
+  blanco: 'bg-white text-[var(--color-primary)]',
+};
+---
+
+<span
+  class={`inline-block px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest ${clases[variante]}`}
+>
+  {texto}
+</span>

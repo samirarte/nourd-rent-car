@@ -1,0 +1,95 @@
+---
+/**
+ * HeroSeccion — Sección hero de la página de inicio.
+ */
+const numeroWhatsApp = import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '34600000000';
+const mensajeGeneral = encodeURIComponent('Hola, me gustaría obtener información sobre vuestros servicios de alquiler.');
+const enlaceWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeGeneral}`;
+---
+
+<section
+  class="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
+  aria-label="Bienvenida a Nourd Rent Car"
+>
+  <!-- Fondo con gradiente -->
+  <div class="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary-light)] to-[#0f3460]" aria-hidden="true"></div>
+
+  <!-- Patrón decorativo -->
+  <div class="absolute inset-0 opacity-5" aria-hidden="true"
+       style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;">
+  </div>
+
+  <!-- Acento dorado decorativo superior derecha -->
+  <div class="absolute top-20 right-10 w-72 h-72 rounded-full opacity-10 blur-3xl
+              bg-[var(--color-accent)]" aria-hidden="true"></div>
+  <!-- Acento inferior izquierda -->
+  <div class="absolute bottom-10 left-10 w-48 h-48 rounded-full opacity-10 blur-2xl
+              bg-[var(--color-accent)]" aria-hidden="true"></div>
+
+  <!-- Contenido -->
+  <div class="relative z-10 section-container py-24 text-center">
+
+    <!-- Badge superior -->
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--color-accent)]/30
+                bg-[var(--color-accent)]/10 text-[var(--color-accent)] text-sm font-medium mb-8">
+      <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" aria-hidden="true"></span>
+      Vehículos disponibles ahora
+    </div>
+
+    <!-- Título principal -->
+    <h1 class="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white
+               leading-tight mb-6 max-w-4xl mx-auto">
+      Alquila el vehículo
+      <span class="text-[var(--color-accent)] block sm:inline"> que mereces</span>
+    </h1>
+
+    <!-- Subtítulo -->
+    <p class="text-[var(--color-text-muted)] text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+      Flota premium de SUVs, Mercedes, Dacia y más. Disponibles con o sin conductor.
+      Reserva en segundos directamente por WhatsApp.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href="/catalogo" class="btn-primary text-base px-8 py-4 w-full sm:w-auto">
+        Ver catálogo completo
+      </a>
+      <a
+        href={enlaceWhatsApp}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-whatsapp text-base px-8 py-4 w-full sm:w-auto"
+        aria-label="Consultar disponibilidad por WhatsApp"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+             class="w-5 h-5 shrink-0" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.523 5.847L.057 23.882a.75.75 0 0 0 .921.921l6.035-1.466A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.373l-.359-.214-3.723.904.92-3.619-.234-.372A9.818 9.818 0 1 1 12 21.818z"/>
+        </svg>
+        Consultar disponibilidad
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="mt-16 grid grid-cols-3 gap-6 max-w-lg mx-auto">
+      {[
+        { numero: '8+',    etiqueta: 'Vehículos' },
+        { numero: '5★',    etiqueta: 'Valoración' },
+        { numero: '24h',   etiqueta: 'Disponibilidad' },
+      ].map(({ numero, etiqueta }) => (
+        <div class="text-center">
+          <p class="font-heading text-2xl font-bold text-[var(--color-accent)]">{numero}</p>
+          <p class="text-xs text-[var(--color-text-muted)] mt-1">{etiqueta}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Flecha scroll hacia abajo -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" class="w-6 h-6 text-[var(--color-text-muted)]">
+      <path d="m6 9 6 6 6-6"/>
+    </svg>
+  </div>
+</section>

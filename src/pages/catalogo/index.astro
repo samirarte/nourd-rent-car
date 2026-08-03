@@ -1,0 +1,49 @@
+---
+/**
+ * Catálogo de vehículos — /catalogo
+ * Soporta filtrado por categoría mediante ?categoria=SUV
+ */
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FiltroCategorias from '../../components/catalogo/FiltroCategorias.astro';
+import ListadoVehiculos from '../../components/catalogo/ListadoVehiculos.astro';
+import { obtenerVehiculos, obtenerCategorias } from '../../lib/vehiculos';
+
+const categoriaParam   = Astro.url.searchParams.get('categoria') ?? 'Todos';
+const categorias       = await obtenerCategorias();
+const vehiculos        = await obtenerVehiculos(categoriaParam === 'Todos' ? undefined : categoriaParam);
+
+const tituloSEO        = categoriaParam && categoriaParam !== 'Todos'
+  ? `Vehículos ${categoriaParam}`
+  : 'Catálogo de Vehículos';
+const descripcionSEO   = `Explora nuestra flota de vehículos de alquiler${categoriaParam !== 'Todos' ? ` — categoría ${categoriaParam}` : ''}. Con y sin conductor. Reserva directa por WhatsApp.`;
+---
+
+<BaseLayout titulo={tituloSEO} descripcion={descripcionSEO}>
+  <div class="section-container py-16">
+
+    <!-- Encabezado de sección -->
+    <div class="mb-10">
+      <p class="text-[var(--color-accent)] text-sm font-semibold uppercase tracking-widest mb-2">
+        Nuestra flota
+      </p>
+      <h1 class="font-heading text-3xl md:text-4xl font-bold text-white mb-6">
+        {categoriaParam && categoriaParam !== 'Todos'
+          ? `Vehículos — ${categoriaParam}`
+          : 'Catálogo completo'}
+      </h1>
+
+      <!-- Filtros -->
+      <FiltroCategorias categorias={categorias} categoriaActiva={categoriaParam} />
+    </div>
+
+    <!-- Contador de resultados -->
+    <p class="text-[var(--color-text-muted)] text-sm mb-6" aria-live="polite">
+      {vehiculos.length} vehículo{vehiculos.length !== 1 ? 's' : ''} disponible{vehiculos.length !== 1 ? 's' : ''}
+    </p>
+
+    <!-- Listado -->
+    <ListadoVehiculos vehiculos={vehiculos} categoriaActiva={categoriaParam} />
+  </div>
+</BaseLayout>

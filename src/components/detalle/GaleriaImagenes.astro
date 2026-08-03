@@ -1,0 +1,91 @@
+---
+/**
+ * GaleriaImagenes — Imagen principal + miniaturas clicables.
+ * Navegación con JS vanilla, sin dependencias externas.
+ */
+interface Props {
+  imagenPrincipal: string;
+  imagenes: string[];
+  nombreVehiculo: string;
+}
+
+const { imagenPrincipal, imagenes, nombreVehiculo } = Astro.props;
+// Combinar imagen principal con las adicionales (sin duplicados)
+const todasLasImagenes = [imagenPrincipal, ...imagenes.filter(img => img !== imagenPrincipal)];
+---
+
+<div class="space-y-3" id="galeria">
+  <!-- Imagen principal -->
+  <div class="rounded-xl overflow-hidden aspect-[16/10] bg-[var(--color-primary-light)]">
+    <img
+      id="imagen-principal"
+      src={todasLasImagenes[0]}
+      alt={`${nombreVehiculo} — imagen principal`}
+      width="800"
+      height="500"
+      loading="eager"
+      decoding="async"
+      class="w-full h-full object-cover transition-opacity duration-300"
+      onerror="this.src='/vehiculos/placeholder.jpg'"
+    />
+  </div>
+
+  <!-- Miniaturas (solo si hay más de una imagen) -->
+  {todasLasImagenes.length > 1 && (
+    <div class="flex gap-3 overflow-x-auto pb-1 snap-x" role="list" aria-label="Galería de imágenes">
+      {todasLasImagenes.map((img, idx) => (
+        <button
+          type="button"
+          class="miniatura shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-200
+                 snap-start focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
+                 border-transparent hover:border-[var(--color-accent)]"
+          data-src={img}
+          data-idx={idx}
+          aria-label={`Ver imagen ${idx + 1} de ${nombreVehiculo}`}
+          aria-pressed={idx === 0 ? 'true' : 'false'}
+        >
+          <img
+            src={img}
+            alt={`${nombreVehiculo} miniatura ${idx + 1}`}
+            width="80"
+            height="56"
+            loading="lazy"
+            decoding="async"
+            class="w-full h-full object-cover"
+            onerror="this.src='/vehiculos/placeholder.jpg'"
+          />
+        </button>
+      ))}
+    </div>
+  )}
+</div>
+
+<script>
+  const imagenPrincipal = document.getElementById('imagen-principal') as HTMLImageElement | null;
+  const miniaturas      = document.querySelectorAll<HTMLButtonElement>('.miniatura');
+
+  // Marcar primera miniatura como activa
+  miniaturas[0]?.classList.add('border-[var(--color-accent)]');
+
+  miniaturas.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const src = btn.dataset.src;
+      if (!src || !imagenPrincipal) return;
+
+      // Cambiar imagen principal con fade
+      imagenPrincipal.style.opacity = '0';
+      setTimeout(() => {
+        imagenPrincipal.src = src;
+        imagenPrincipal.style.opacity = '1';
+      }, 150);
+
+      // Actualizar estado de miniaturas
+      miniaturas.forEach((b) => {
+        b.classList.remove('border-[var(--color-accent)]');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('border-[var(--color-accent)]');
+      btn.setAttribute('aria-pressed', 'true');
+    });
+  });
+</script>

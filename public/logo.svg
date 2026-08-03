@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" width="100%" height="100%">
+  <defs>
+    <!-- Degradado dorado para el icono de la silueta -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5C158"/>
+      <stop offset="50%" stop-color="#C9A84C"/>
+      <stop offset="100%" stop-color="#997B2C"/>
+    </linearGradient>
+  </defs>
+
+  <g id="logo-icon" transform="translate(10, 10)">
+    <!-- Silueta estilizada de vehículo deportivo / lujo -->
+    <path d="M 15 65 C 25 65, 30 63, 40 50 C 52 35, 70 28, 95 28 C 115 28, 130 35, 142 50 C 150 60, 160 65, 170 65" 
+          fill="none" stroke="url(#goldGradient)" stroke-width="5" stroke-linecap="round"/>
+    
+    <!-- Línea de chasis inferior -->
+    <path d="M 5 67 L 175 67" 
+          stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Ruedas y detalles de la silueta -->
+    <circle cx="45" cy="67" r="10" fill="#1A1A2E" stroke="url(#goldGradient)" stroke-width="3"/>
+    <circle cx="140" cy="67" r="10" fill="#1A1A2E" stroke="url(#goldGradient)" stroke-width="3"/>
+  </g>
+
+  <!-- Tipografía del Isologo Nourd -->
+  <text x="195" y="62" 
+        font-family="'Playfair Display', Georgia, serif" 
+        font-size="42" 
+        font-weight="700" 
+        letter-spacing="2" 
+        fill="#FFFFFF">NOURD</text>
+
+  <!-- Subtexto Rent a Car -->
+  <text x="198" y="85" 
+        font-family="'Inter', system-ui, sans-serif" 
+        font-size="14" 
+        font-weight="600" 
+        letter-spacing="6" 
+        fill="#C9A84C">RENT A CAR</text>
+</svg>

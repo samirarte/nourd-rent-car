@@ -1,0 +1,83 @@
+---
+/**
+ * TarjetaVehiculo — Tarjeta de vehículo para el catálogo.
+ */
+import type { Vehiculo } from '../../types/vehiculo';
+import Badge from '../ui/Badge.astro';
+
+interface Props {
+  vehiculo: Vehiculo;
+}
+
+const { vehiculo } = Astro.props;
+const {
+  slug,
+  nombre,
+  categoria,
+  descripcion,
+  precioSinConductor,
+  imagenPrincipal,
+  disponible,
+} = vehiculo;
+---
+
+<article class="card group flex flex-col h-full">
+  <!-- Imagen -->
+  <a href={`/vehiculo/${slug}`} class="block overflow-hidden aspect-[16/10] bg-[var(--color-primary)]" aria-label={`Ver detalle de ${nombre}`}>
+    <img
+      src={imagenPrincipal}
+      alt={`Foto de ${nombre}`}
+      width="480"
+      height="300"
+      loading="lazy"
+      decoding="async"
+      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      onerror="this.src='/vehiculos/placeholder.jpg'"
+    />
+  </a>
+
+  <!-- Contenido -->
+  <div class="flex flex-col flex-1 p-5 gap-3">
+    <!-- Badge + disponibilidad -->
+    <div class="flex items-center justify-between gap-2">
+      <Badge texto={categoria} variante="dorado" />
+      {!disponible && (
+        <span class="text-xs text-[var(--color-text-muted)] italic">No disponible</span>
+      )}
+    </div>
+
+    <!-- Nombre -->
+    <h3 class="font-heading text-lg font-semibold text-white leading-snug">
+      <a href={`/vehiculo/${slug}`} class="hover:text-[var(--color-accent)] transition-colors duration-200">
+        {nombre}
+      </a>
+    </h3>
+
+    <!-- Descripción -->
+    <p class="text-[var(--color-text-muted)] text-sm leading-relaxed flex-1 line-clamp-2">
+      {descripcion}
+    </p>
+
+    <!-- Precio + CTA -->
+    <div class="flex items-center justify-between mt-auto pt-3 border-t border-white/10">
+      <div>
+        <span class="text-xs text-[var(--color-text-muted)]">Desde</span>
+        <p class="text-[var(--color-accent)] font-bold text-lg leading-none mt-0.5">
+          {precioSinConductor} €<span class="text-xs font-normal text-[var(--color-text-muted)]">/día</span>
+        </p>
+      </div>
+      <a
+        href={`/vehiculo/${slug}`}
+        class="text-sm font-semibold text-[var(--color-accent)] hover:text-white
+               transition-colors duration-200 flex items-center gap-1"
+        aria-label={`Ver detalles de ${nombre}`}
+      >
+        Ver detalles
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+             class="w-4 h-4" aria-hidden="true">
+          <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06z" clip-rule="evenodd"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</article>

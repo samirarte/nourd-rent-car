@@ -1,0 +1,109 @@
+---
+/**
+ * Página de detalle de vehículo — /vehiculo/[slug]
+ * Renderizada en el servidor (SSR): consulta la BD en cada petición.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GaleriaImagenes from '../../components/detalle/GaleriaImagenes.astro';
+import EspecificacionesTecnicas from '../../components/detalle/EspecificacionesTecnicas.astro';
+import FormularioReserva from '../../components/detalle/FormularioReserva.astro';
+import Badge from '../../components/ui/Badge.astro';
+import { obtenerVehiculoPorSlug } from '../../lib/vehiculos';
+
+const { slug }   = Astro.params;
+const vehiculo   = await obtenerVehiculoPorSlug(slug!);
+
+// Redirigir al catálogo si el vehículo no existe
+if (!vehiculo) {
+  return Astro.redirect('/catalogo', 302);
+}
+
+const descripcionSEO = vehiculo.descripcionLarga.slice(0, 160);
+---
+
+<BaseLayout
+  titulo={vehiculo.nombre}
+  descripcion={descripcionSEO}
+  imagen={vehiculo.imagenPrincipal}
+>
+  <div class="section-container py-12">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="Ruta de navegación" class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-8">
+      <a href="/" class="hover:text-[var(--color-accent)] transition-colors duration-200">Inicio</a>
+      <span aria-hidden="true">/</span>
+      <a href="/catalogo" class="hover:text-[var(--color-accent)] transition-colors duration-200">Catálogo</a>
+      <span aria-hidden="true">/</span>
+      <span class="text-white" aria-current="page">{vehiculo.nombre}</span>
+    </nav>
+
+    <!-- Layout principal: galería + formulario -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+
+      <!-- Columna izquierda: galería + specs + descripción -->
+      <div class="space-y-8">
+        <!-- Badge + título -->
+        <div>
+          <Badge texto={vehiculo.categoria} variante="dorado" />
+          <h1 class="font-heading text-3xl md:text-4xl font-bold text-white mt-3 mb-2">
+            {vehiculo.nombre}
+          </h1>
+          <p class="text-[var(--color-text-muted)]">{vehiculo.descripcion}</p>
+        </div>
+
+        <!-- Galería -->
+        <GaleriaImagenes
+          imagenPrincipal={vehiculo.imagenPrincipal}
+          imagenes={vehiculo.imagenes}
+          nombreVehiculo={vehiculo.nombre}
+        />
+
+        <!-- Especificaciones técnicas -->
+        <div>
+          <h2 class="font-heading text-lg font-semibold text-white mb-4">
+            Especificaciones
+          </h2>
+          <EspecificacionesTecnicas
+            plazas={vehiculo.plazas}
+            transmision={vehiculo.transmision}
+            combustible={vehiculo.combustible}
+            categoria={vehiculo.categoria}
+          />
+        </div>
+
+        <!-- Descripción completa -->
+        <div>
+          <h2 class="font-heading text-lg font-semibold text-white mb-3">
+            Descripción
+          </h2>
+          <p class="text-[var(--color-text-muted)] leading-relaxed">
+            {vehiculo.descripcionLarga}
+          </p>
+        </div>
+
+        <!-- Precios por modalidad -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-[var(--color-primary-light)] border border-white/10 text-center">
+            <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest mb-1">Sin conductor</p>
+            <p class="font-heading text-2xl font-bold text-[var(--color-accent)]">
+              {vehiculo.precioSinConductor} €
+              <span class="text-sm font-normal text-[var(--color-text-muted)]">/día</span>
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--color-primary-light)] border border-white/10 text-center">
+            <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest mb-1">Con conductor</p>
+            <p class="font-heading text-2xl font-bold text-[var(--color-accent)]">
+              {vehiculo.precioConConductor} €
+              <span class="text-sm font-normal text-[var(--color-text-muted)]">/día</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: formulario de reserva (sticky en desktop) -->
+      <div class="lg:sticky lg:top-24">
+        <FormularioReserva vehiculo={vehiculo} />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

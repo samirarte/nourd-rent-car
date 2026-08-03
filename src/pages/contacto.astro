@@ -1,0 +1,128 @@
+---
+/**
+ * Página de contacto — /contacto
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BotonWhatsApp from '../components/ui/BotonWhatsApp.astro';
+import { enlaceWhatsAppGeneral } from '../lib/whatsapp';
+
+const enlaceWA = enlaceWhatsAppGeneral();
+const numero   = import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '34600000000';
+// Formatear número para mostrar: 34600000000 → +34 600 000 000
+const numeroDisplay = `+${numero.slice(0, 2)} ${numero.slice(2, 5)} ${numero.slice(5, 8)} ${numero.slice(8)}`;
+---
+
+<BaseLayout
+  titulo="Contacto"
+  descripcion="Contacta con Nourd Rent Car. Estamos disponibles por WhatsApp para resolver todas tus dudas y gestionar tu reserva de forma rápida y sencilla."
+>
+  <div class="section-container py-16">
+
+    <!-- Encabezado -->
+    <div class="text-center mb-14">
+      <p class="text-[var(--color-accent)] text-sm font-semibold uppercase tracking-widest mb-3">
+        Estamos aquí para ayudarte
+      </p>
+      <h1 class="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
+        Contacto
+      </h1>
+      <p class="text-[var(--color-text-muted)] max-w-xl mx-auto">
+        La forma más rápida de contactarnos es por WhatsApp.
+        Respondemos en minutos para confirmar tu reserva.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-4xl mx-auto">
+
+      <!-- Tarjeta WhatsApp -->
+      <div class="p-8 rounded-2xl bg-[var(--color-primary-light)] border border-white/10 flex flex-col gap-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-[var(--color-success)]/10 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                 class="w-6 h-6 text-[var(--color-success)]" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.523 5.847L.057 23.882a.75.75 0 0 0 .921.921l6.035-1.466A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.373l-.359-.214-3.723.904.92-3.619-.234-.372A9.818 9.818 0 1 1 12 21.818z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-semibold text-white">WhatsApp</h2>
+            <p class="text-[var(--color-text-muted)] text-sm">Respuesta en minutos</p>
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-white">{numeroDisplay}</p>
+        <BotonWhatsApp href={enlaceWA} texto="Enviar mensaje" variante="primario" />
+      </div>
+
+      <!-- Tarjeta Email + Ubicación -->
+      <div class="space-y-6">
+
+        <!-- Email -->
+        <div class="p-6 rounded-2xl bg-[var(--color-primary-light)] border border-white/10 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 class="w-5 h-5 text-[var(--color-accent)]" aria-hidden="true">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-semibold text-white mb-1">Email</h2>
+            <a href="mailto:info@nourdrentcar.com"
+               class="text-[var(--color-text-muted)] text-sm hover:text-[var(--color-accent)] transition-colors duration-200">
+              info@nourdrentcar.com
+            </a>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="p-6 rounded-2xl bg-[var(--color-primary-light)] border border-white/10 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 class="w-5 h-5 text-[var(--color-accent)]" aria-hidden="true">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-semibold text-white mb-1">Ubicación</h2>
+            <p class="text-[var(--color-text-muted)] text-sm mb-1">
+              Oficina principal: <span class="text-white">Casablanca, Marruecos</span>
+            </p>
+            <p class="text-[var(--color-text-muted)] text-sm mb-2">
+              Recogida y entrega también en el <span class="text-white">Aeropuerto Mohammed V (CMN)</span>
+            </p>
+            <a
+              href="https://www.google.com/maps/search/Casablanca+Maroc"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-[var(--color-accent)] text-sm hover:underline transition-colors duration-200"
+              aria-label="Ver Casablanca en Google Maps (abre en nueva pestaña)"
+            >
+              Ver en Google Maps →
+            </a>
+          </div>
+        </div>
+
+        <!-- Horario -->
+        <div class="p-6 rounded-2xl bg-[var(--color-primary-light)] border border-white/10 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 class="w-5 h-5 text-[var(--color-accent)]" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-semibold text-white mb-1">Disponibilidad</h2>
+            <p class="text-[var(--color-text-muted)] text-sm">
+              Lunes a domingo — 24 horas por WhatsApp
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
