@@ -68,6 +68,7 @@ const descripcionSEO = vehiculo.descripcionLarga.slice(0, 160);
             transmision={vehiculo.transmision}
             combustible={vehiculo.combustible}
             categoria={vehiculo.categoria}
+            lang="es"
           />
         </div>
 
@@ -102,7 +103,7 @@ const descripcionSEO = vehiculo.descripcionLarga.slice(0, 160);
 
       <!-- Columna derecha: formulario de reserva (sticky en desktop) -->
       <div class="lg:sticky lg:top-24">
-        <FormularioReserva vehiculo={vehiculo} />
+        <FormularioReserva vehiculo={vehiculo} lang="es" />
       </div>
     </div>
   </div>

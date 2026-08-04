@@ -1,16 +1,21 @@
 ---
 /**
  * Header — Cabecera principal de Nourd Rent Car.
- * Sticky con fondo semitransparente que se vuelve sólido al hacer scroll.
- * Incluye menú hamburguesa funcional para móvil (sin framework JS).
+ * Soporta selector de idioma ES/EN y enlace al panel de administración.
  */
-const enlaces = [
-  { href: '/',          etiqueta: 'Inicio'   },
-  { href: '/catalogo',  etiqueta: 'Catálogo' },
-  { href: '/contacto',  etiqueta: 'Contacto' },
-];
+import { useTranslations, getNavLinks, getAlternateUrl } from '../../i18n/utils';
+import { LANGUAGES, type Lang } from '../../i18n/translations';
 
-const rutaActual = Astro.url.pathname;
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const t        = useTranslations(lang);
+const enlaces  = getNavLinks(lang);
+const rutaActual    = Astro.url.pathname;
+const urlAlternate  = getAlternateUrl(Astro.url, lang === 'es' ? 'en' : 'es');
+const otroIdioma    = LANGUAGES.find(l => l.code !== lang)!;
 ---
 
 <header
@@ -18,38 +23,70 @@ const rutaActual = Astro.url.pathname;
   class="sticky top-0 z-40 w-full transition-all duration-300
          bg-[var(--color-primary)]/80 backdrop-blur-md border-b border-white/5"
 >
-  <div class="section-container flex items-center justify-between h-16 md:h-20">
+  <div class="section-container flex items-center justify-between h-16 md:h-20 gap-4">
 
     <!-- Logo -->
-    <a href="/" class="flex items-center gap-2 shrink-0" aria-label="Nourd Rent Car Casablanca — Inicio">
-      <img src="/logo.svg" alt="Nourd Rent Car Casablanca" class="h-12 w-auto" />
+    <a href={lang === 'en' ? '/en' : '/'} class="shrink-0" aria-label="Nourd Rent Car Casablanca — Inicio">
+      <img src="/logo.svg" alt="Nourd Rent Car Casablanca" class="h-10 md:h-12 w-auto" />
     </a>
 
     <!-- Navegación escritorio -->
-    <nav aria-label="Navegación principal" class="hidden md:flex items-center gap-8">
-      {enlaces.map(({ href, etiqueta }) => (
-        <a
-          href={href}
-          class={`text-sm font-medium tracking-wide transition-colors duration-200
-                  hover:text-[var(--color-accent)]
-                  ${rutaActual === href
-                    ? 'text-[var(--color-accent)]'
-                    : 'text-[var(--color-text-base)]'}`}
-          aria-current={rutaActual === href ? 'page' : undefined}
-        >
-          {etiqueta}
-        </a>
-      ))}
+    <nav aria-label={lang === 'en' ? 'Main navigation' : 'Navegación principal'}
+         class="hidden md:flex items-center gap-6 lg:gap-8">
+      {enlaces.map(({ href, key }) => {
+        const activo = rutaActual === href || (href !== '/' && href !== '/en' && rutaActual.startsWith(href));
+        return (
+          <a
+            href={href}
+            class={`text-sm font-medium tracking-wide transition-colors duration-200
+                    hover:text-[var(--color-accent)]
+                    ${activo ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-base)]'}`}
+            aria-current={activo ? 'page' : undefined}
+          >
+            {t(key as any)}
+          </a>
+        );
+      })}
     </nav>
+
+    <!-- Acciones escritorio: selector idioma + admin -->
+    <div class="hidden md:flex items-center gap-3">
+      <!-- Selector de idioma -->
+      <a
+        href={urlAlternate}
+        aria-label={lang === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15
+               text-xs font-semibold text-[var(--color-text-muted)] hover:border-[var(--color-accent)]
+               hover:text-[var(--color-accent)] transition-all duration-200"
+      >
+        <span aria-hidden="true">{otroIdioma.flag}</span>
+        <span>{otroIdioma.label}</span>
+      </a>
+
+      <!-- Acceso al panel de administración -->
+      <a
+        href="/admin"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15
+               text-xs font-semibold text-[var(--color-text-muted)] hover:border-[var(--color-accent)]
+               hover:text-[var(--color-accent)] transition-all duration-200"
+        aria-label={t('nav.admin')}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+             class="w-3.5 h-3.5" aria-hidden="true">
+          <path fill-rule="evenodd" d="M8 7a5 5 0 1 1 10 0A5 5 0 0 1 8 7Zm-5.657 9.657a1 1 0 0 1 0-1.414l1.06-1.06a7.004 7.004 0 0 1-.349-1.183H2a1 1 0 1 1 0-2h1.054c.09-.412.226-.806.404-1.183L2.343 8.757a1 1 0 1 1 1.414-1.414l1.06 1.06A7.004 7.004 0 0 1 6 7.054V6a1 1 0 1 1 2 0v1.054c.412.09.806.226 1.183.404l1.06-1.06a1 1 0 1 1 1.414 1.414l-1.06 1.06c.178.377.314.77.404 1.182H12a1 1 0 1 1 0 2h-1.054a7.004 7.004 0 0 1-.404 1.183l1.06 1.06a1 1 0 0 1-1.414 1.414l-1.06-1.06A7.004 7.004 0 0 1 8 16.946V18a1 1 0 1 1-2 0v-1.054a7.004 7.004 0 0 1-1.183-.404l-1.06 1.06a1 1 0 0 1-1.414 0Z" clip-rule="evenodd"/>
+        </svg>
+        Admin
+      </a>
+    </div>
 
     <!-- Botón hamburguesa (móvil) -->
     <button
       id="btn-menu"
-      aria-label="Abrir menú de navegación"
+      aria-label={lang === 'en' ? 'Open navigation menu' : 'Abrir menú de navegación'}
       aria-expanded="false"
       aria-controls="menu-movil"
       class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5
-             rounded-lg hover:bg-white/10 transition-colors duration-200"
+             rounded-lg hover:bg-white/10 transition-colors duration-200 ml-auto"
     >
       <span class="hamburger-line block w-6 h-0.5 bg-white transition-all duration-300"></span>
       <span class="hamburger-line block w-6 h-0.5 bg-white transition-all duration-300"></span>
@@ -60,29 +97,48 @@ const rutaActual = Astro.url.pathname;
   <!-- Menú móvil desplegable -->
   <nav
     id="menu-movil"
-    aria-label="Menú móvil"
-    class="md:hidden hidden flex-col border-t border-white/10
-           bg-[var(--color-primary-light)]"
+    aria-label={lang === 'en' ? 'Mobile menu' : 'Menú móvil'}
+    class="md:hidden hidden flex-col border-t border-white/10 bg-[var(--color-primary-light)]"
   >
-    {enlaces.map(({ href, etiqueta }) => (
+    {enlaces.map(({ href, key }) => {
+      const activo = rutaActual === href || (href !== '/' && href !== '/en' && rutaActual.startsWith(href));
+      return (
+        <a
+          href={href}
+          class={`px-6 py-4 text-base font-medium border-b border-white/5
+                  transition-colors duration-200 hover:bg-white/5 hover:text-[var(--color-accent)]
+                  ${activo ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-base)]'}`}
+          aria-current={activo ? 'page' : undefined}
+        >
+          {t(key as any)}
+        </a>
+      );
+    })}
+
+    <!-- Selector idioma + Admin en móvil -->
+    <div class="flex items-center gap-3 px-6 py-4 border-b border-white/5">
       <a
-        href={href}
-        class={`px-6 py-4 text-base font-medium border-b border-white/5
-                transition-colors duration-200 hover:bg-white/5
-                hover:text-[var(--color-accent)]
-                ${rutaActual === href
-                  ? 'text-[var(--color-accent)]'
-                  : 'text-[var(--color-text-base)]'}`}
-        aria-current={rutaActual === href ? 'page' : undefined}
+        href={urlAlternate}
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15
+               text-xs font-semibold text-[var(--color-text-muted)] hover:border-[var(--color-accent)]
+               hover:text-[var(--color-accent)] transition-all duration-200"
       >
-        {etiqueta}
+        <span aria-hidden="true">{otroIdioma.flag}</span>
+        <span>{otroIdioma.label}</span>
       </a>
-    ))}
+      <a
+        href="/admin"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15
+               text-xs font-semibold text-[var(--color-text-muted)] hover:border-[var(--color-accent)]
+               hover:text-[var(--color-accent)] transition-all duration-200"
+      >
+        Admin
+      </a>
+    </div>
   </nav>
 </header>
 
 <script>
-  // ── Menú hamburguesa ────────────────────────────────────────────────
   const btnMenu   = document.getElementById('btn-menu');
   const menuMovil = document.getElementById('menu-movil');
   const lineas    = document.querySelectorAll<HTMLElement>('.hamburger-line');
@@ -90,27 +146,22 @@ const rutaActual = Astro.url.pathname;
   btnMenu?.addEventListener('click', () => {
     const abierto = btnMenu.getAttribute('aria-expanded') === 'true';
     btnMenu.setAttribute('aria-expanded', String(!abierto));
-
     if (abierto) {
       menuMovil?.classList.add('hidden');
       menuMovil?.classList.remove('flex');
-      // Restaurar líneas
       lineas[0].style.transform = '';
       lineas[1].style.opacity   = '1';
       lineas[2].style.transform = '';
     } else {
       menuMovil?.classList.remove('hidden');
       menuMovil?.classList.add('flex');
-      // Animar a X
       lineas[0].style.transform = 'translateY(8px) rotate(45deg)';
       lineas[1].style.opacity   = '0';
       lineas[2].style.transform = 'translateY(-8px) rotate(-45deg)';
     }
   });
 
-  // ── Header sólido al hacer scroll ──────────────────────────────────
   const header = document.getElementById('header-principal');
-
   const actualizarHeader = () => {
     if (window.scrollY > 10) {
       header?.classList.remove('bg-[var(--color-primary)]/80', 'backdrop-blur-md');
@@ -120,7 +171,6 @@ const rutaActual = Astro.url.pathname;
       header?.classList.remove('bg-[var(--color-primary)]', 'shadow-lg');
     }
   };
-
   window.addEventListener('scroll', actualizarHeader, { passive: true });
   actualizarHeader();
 </script>

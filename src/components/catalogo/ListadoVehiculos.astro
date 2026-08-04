@@ -1,39 +1,30 @@
 ---
-/**
- * ListadoVehiculos — Grid responsive de tarjetas de vehículos.
- */
 import type { Vehiculo } from '../../types/vehiculo';
 import TarjetaVehiculo from './TarjetaVehiculo.astro';
-
-interface Props {
-  vehiculos: Vehiculo[];
-  categoriaActiva?: string;
-}
-
-const { vehiculos, categoriaActiva } = Astro.props;
+import { useTranslations } from '../../i18n/utils';
+import type { Lang } from '../../i18n/translations';
+interface Props { vehiculos: Vehiculo[]; categoriaActiva?: string; lang?: Lang; }
+const { vehiculos, categoriaActiva, lang = 'es' } = Astro.props;
+const t = useTranslations(lang);
+const rutaCatalogo = lang === 'en' ? '/en/catalogue' : '/catalogo';
 ---
-
 {vehiculos.length === 0 ? (
   <div class="text-center py-20">
     <p class="text-[var(--color-text-muted)] text-lg">
-      No hay vehículos disponibles
-      {categoriaActiva && categoriaActiva !== 'Todos'
-        ? ` en la categoría "${categoriaActiva}".`
+      {t('catalogue.empty')}
+      {categoriaActiva && categoriaActiva !== 'Todos' && categoriaActiva !== 'All'
+        ? ` ${t('catalogue.empty.cat')} "${categoriaActiva}".`
         : '.'}
     </p>
-    <a href="/catalogo" class="mt-4 inline-block text-[var(--color-accent)] hover:underline text-sm">
-      Ver todos los vehículos
+    <a href={rutaCatalogo} class="mt-4 inline-block text-[var(--color-accent)] hover:underline text-sm">
+      {t('catalogue.see.all')}
     </a>
   </div>
 ) : (
-  <ul
-    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-    aria-label="Listado de vehículos disponibles"
-  >
+  <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      aria-label={lang === 'en' ? 'Available vehicles' : 'Listado de vehículos disponibles'}>
     {vehiculos.map((vehiculo) => (
-      <li>
-        <TarjetaVehiculo vehiculo={vehiculo} />
-      </li>
+      <li><TarjetaVehiculo vehiculo={vehiculo} lang={lang} /></li>
     ))}
   </ul>
 )}

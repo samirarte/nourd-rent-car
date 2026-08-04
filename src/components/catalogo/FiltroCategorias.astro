@@ -1,32 +1,28 @@
 ---
-/**
- * FiltroCategorias — Chips de filtro por categoría en el catálogo.
- * Funciona mediante parámetros de URL (?categoria=SUV).
- */
-
-interface Props {
-  categorias: string[];
-  categoriaActiva: string;
-}
-
-const { categorias, categoriaActiva } = Astro.props;
-const todasLasCategorias = ['Todos', ...categorias];
+import { useTranslations, getPathPrefix } from '../../i18n/utils';
+import type { Lang } from '../../i18n/translations';
+interface Props { categorias: string[]; categoriaActiva: string; lang?: Lang; }
+const { categorias, categoriaActiva, lang = 'es' } = Astro.props;
+const t      = useTranslations(lang);
+const prefix = getPathPrefix(lang);
+const rutaCat = lang === 'en' ? `${prefix}/catalogue` : `${prefix}/catalogo`;
+const todoLabel = t('catalogue.filter.all');
+const todas  = [todoLabel, ...categorias];
 ---
-
-<nav aria-label="Filtrar por categoría" class="flex flex-wrap gap-2">
-  {todasLasCategorias.map((cat) => {
-    const activo = cat === categoriaActiva || (cat === 'Todos' && !categoriaActiva);
-    const href   = cat === 'Todos' ? '/catalogo' : `/catalogo?categoria=${encodeURIComponent(cat)}`;
+<nav aria-label={lang === 'en' ? 'Filter by category' : 'Filtrar por categoría'} class="flex flex-wrap gap-2">
+  {todas.map((cat) => {
+    const esAll  = cat === todoLabel;
+    const activo = esAll
+      ? (!categoriaActiva || categoriaActiva === todoLabel || categoriaActiva === 'Todos' || categoriaActiva === 'All')
+      : categoriaActiva === cat;
+    const href   = esAll ? rutaCat : `${rutaCat}?categoria=${encodeURIComponent(cat)}`;
     return (
-      <a
-        href={href}
-        aria-current={activo ? 'true' : undefined}
-        class={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200
-                ${activo
-                  ? 'bg-[var(--color-accent)] text-[var(--color-primary)] border-[var(--color-accent)]'
-                  : 'bg-transparent text-[var(--color-text-muted)] border-white/20 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]'
-                }`}
-      >
+      <a href={href} aria-current={activo ? 'true' : undefined}
+         class={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200
+                 ${activo
+                   ? 'bg-[var(--color-accent)] text-[var(--color-primary)] border-[var(--color-accent)]'
+                   : 'bg-transparent text-[var(--color-text-muted)] border-white/20 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]'
+                 }`}>
         {cat}
       </a>
     );

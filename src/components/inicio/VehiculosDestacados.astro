@@ -1,52 +1,29 @@
 ---
-/**
- * VehiculosDestacados — Sección de vehículos destacados en la página de inicio.
- */
 import type { Vehiculo } from '../../types/vehiculo';
 import TarjetaVehiculo from '../catalogo/TarjetaVehiculo.astro';
-
-interface Props {
-  vehiculos: Vehiculo[];
-}
-
-const { vehiculos } = Astro.props;
+import { useTranslations, getPathPrefix } from '../../i18n/utils';
+import type { Lang } from '../../i18n/translations';
+interface Props { vehiculos: Vehiculo[]; lang?: Lang; }
+const { vehiculos, lang = 'es' } = Astro.props;
+const t      = useTranslations(lang);
+const prefix = getPathPrefix(lang);
 ---
-
 <section class="py-20 bg-[var(--color-primary)]" aria-labelledby="titulo-destacados">
   <div class="section-container">
-
-    <!-- Encabezado -->
     <div class="text-center mb-12">
-      <p class="text-[var(--color-accent)] text-sm font-semibold uppercase tracking-widest mb-3">
-        Nuestra flota
-      </p>
-      <h2 id="titulo-destacados" class="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
-        Vehículos destacados
-      </h2>
-      <p class="text-[var(--color-text-muted)] max-w-xl mx-auto">
-        Selección de nuestros vehículos más populares. Disponibles con o sin conductor según tus necesidades.
-      </p>
+      <p class="text-[var(--color-accent)] text-sm font-semibold uppercase tracking-widest mb-3">{t('featured.label')}</p>
+      <h2 id="titulo-destacados" class="font-heading text-3xl md:text-4xl font-bold text-white mb-4">{t('featured.title')}</h2>
+      <p class="text-[var(--color-text-muted)] max-w-xl mx-auto">{t('featured.subtitle')}</p>
     </div>
-
-    <!-- Grid de tarjetas -->
     {vehiculos.length > 0 ? (
-      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          aria-label="Vehículos destacados">
-        {vehiculos.map((v) => (
-          <li><TarjetaVehiculo vehiculo={v} /></li>
-        ))}
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" aria-label={t('featured.title')}>
+        {vehiculos.map((v) => <li><TarjetaVehiculo vehiculo={v} lang={lang} /></li>)}
       </ul>
     ) : (
-      <p class="text-center text-[var(--color-text-muted)]">
-        No hay vehículos destacados en este momento.
-      </p>
+      <p class="text-center text-[var(--color-text-muted)]">{t('featured.empty')}</p>
     )}
-
-    <!-- CTA -->
     <div class="text-center mt-10">
-      <a href="/catalogo" class="btn-primary px-8 py-3">
-        Ver catálogo completo
-      </a>
+      <a href={`${prefix}/catalogo`} class="btn-primary px-8 py-3">{t('featured.cta')}</a>
     </div>
   </div>
 </section>

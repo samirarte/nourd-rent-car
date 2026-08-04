@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeroSeccion from '../../components/inicio/HeroSeccion.astro';
+import VehiculosDestacados from '../../components/inicio/VehiculosDestacados.astro';
+import PorQueElegirnos from '../../components/inicio/PorQueElegirnos.astro';
+import { obtenerVehiculosDestacados } from '../../lib/vehiculos';
+const lang = 'en' as const;
+const vehiculosDestacados = await obtenerVehiculosDestacados();
+---
+<BaseLayout lang={lang}
+  titulo="Premium Car Rental"
+  descripcion="Nourd Rent Car — Premium car rental with and without driver in Casablanca, Morocco. SUVs, Mercedes, Dacia and more. Book directly via WhatsApp.">
+  <HeroSeccion lang={lang} />
+  <VehiculosDestacados vehiculos={vehiculosDestacados} lang={lang} />
+  <PorQueElegirnos lang={lang} />
+</BaseLayout>

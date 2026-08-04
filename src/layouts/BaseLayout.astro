@@ -1,56 +1,63 @@
 ---
 /**
  * Layout base de Nourd Rent Car.
- * Todas las páginas deben usar este layout para garantizar
- * metaetiquetas SEO coherentes y estilos globales.
+ * Soporta múltiples idiomas (ES por defecto, EN disponible).
  */
 import '../styles/global.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import BotonWhatsApp from '../components/ui/BotonWhatsApp.astro';
+import { getLang, useTranslations, getAlternateUrl } from '../i18n/utils';
+import type { Lang } from '../i18n/translations';
 
 interface Props {
-  /** Título de la página (se añade "— Nourd Rent Car" automáticamente) */
   titulo: string;
-  /** Descripción para <meta name="description"> y Open Graph */
   descripcion: string;
-  /** URL de imagen para Open Graph (opcional) */
   imagen?: string;
-  /** URL canónica de la página (opcional) */
   url?: string;
+  lang?: Lang;
 }
 
 const {
   titulo,
   descripcion,
   imagen = '/og-default.jpg',
-  url = Astro.url.href,
+  url    = Astro.url.href,
+  lang   = getLang(Astro.url),
 } = Astro.props;
 
+const t              = useTranslations(lang);
 const tituloCompleto = `${titulo} — Nourd Rent Car`;
 const numeroWhatsApp = import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '34600000000';
-const mensajeGeneral = encodeURIComponent('Hola, me gustaría obtener más información sobre vuestros servicios de alquiler.');
+const mensajeGeneral = encodeURIComponent(t('wa.general'));
 const enlaceWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeGeneral}`;
+const urlAlternate   = getAlternateUrl(Astro.url, lang === 'es' ? 'en' : 'es');
+const ogLocale       = lang === 'en' ? 'en_GB' : 'es_ES';
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- SEO principal -->
+    <!-- SEO -->
     <title>{tituloCompleto}</title>
     <meta name="description" content={descripcion} />
     <link rel="canonical" href={url} />
 
-    <!-- Open Graph / redes sociales -->
+    <!-- Idioma alternativo (hreflang) -->
+    <link rel="alternate" hreflang={lang}                         href={url} />
+    <link rel="alternate" hreflang={lang === 'es' ? 'en' : 'es'} href={urlAlternate} />
+    <link rel="alternate" hreflang="x-default"                    href={Astro.site ?? '/'} />
+
+    <!-- Open Graph -->
     <meta property="og:type"        content="website" />
     <meta property="og:title"       content={tituloCompleto} />
     <meta property="og:description" content={descripcion} />
     <meta property="og:image"       content={imagen} />
     <meta property="og:url"         content={url} />
-    <meta property="og:locale"      content="es_ES" />
+    <meta property="og:locale"      content={ogLocale} />
     <meta property="og:site_name"   content="Nourd Rent Car" />
 
     <!-- Twitter Card -->
@@ -65,19 +72,14 @@ const enlaceWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeGeneral}`;
   </head>
 
   <body class="min-h-screen flex flex-col">
-    <Header />
+    <Header lang={lang} />
 
     <main class="flex-1">
       <slot />
     </main>
 
-    <Footer />
+    <Footer lang={lang} />
 
-    <!-- Botón flotante de WhatsApp (visible en todas las páginas) -->
-    <BotonWhatsApp
-      href={enlaceWhatsApp}
-      texto="WhatsApp"
-      variante="flotante"
-    />
+    <BotonWhatsApp href={enlaceWhatsApp} texto="WhatsApp" variante="flotante" />
   </body>
 </html>

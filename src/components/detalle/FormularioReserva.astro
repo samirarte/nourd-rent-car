@@ -1,189 +1,93 @@
 ---
-/**
- * FormularioReserva — Formulario de reserva con cálculo de precio y enlace WhatsApp.
- * Toda la lógica de precio y construcción del enlace se hace en el cliente con JS vanilla.
- */
 import type { Vehiculo } from '../../types/vehiculo';
-import { OPCIONES_MODALIDAD } from '../../types/vehiculo';
-
-interface Props {
-  vehiculo: Vehiculo;
-}
-
-const { vehiculo } = Astro.props;
-const hoy       = new Date().toISOString().split('T')[0];
-const manana    = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-const numero    = import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '34600000000';
+import { useTranslations } from '../../i18n/utils';
+import type { Lang } from '../../i18n/translations';
+interface Props { vehiculo: Vehiculo; lang?: Lang; }
+const { vehiculo, lang = 'es' } = Astro.props;
+const t      = useTranslations(lang);
+const hoy    = new Date().toISOString().split('T')[0];
+const manana = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+const numero = import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '34600000000';
+const modalidades = [
+  { valor: 'sin-conductor', etiqueta: t('form.modality.without') },
+  { valor: 'con-conductor', etiqueta: t('form.modality.with') },
+];
+const textos = {
+  greeting: t('wa.greeting'), start: t('wa.start'), end: t('wa.end'),
+  modality: t('wa.modality'), price: t('wa.price'), question: t('wa.question'),
+  withDriver: t('form.modality.with'), withoutDriver: t('form.modality.without'),
+  errorDates: t('form.error.dates'),
+};
 ---
-
 <div class="bg-[var(--color-primary-light)] rounded-2xl border border-white/10 p-6 space-y-5">
-  <h2 class="font-heading text-xl font-semibold text-white">Reservar este vehículo</h2>
-
+  <h2 class="font-heading text-xl font-semibold text-white">{t('form.title')}</h2>
   <form id="form-reserva" novalidate class="space-y-4">
-    <!-- Modalidad -->
     <div>
-      <label for="modalidad" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">
-        Modalidad de alquiler
-      </label>
-      <select
-        id="modalidad"
-        name="modalidad"
-        required
-        class="w-full rounded-lg px-4 py-3 bg-[var(--color-primary)] border border-white/10
-               text-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
-               focus:border-transparent cursor-pointer"
-      >
-        {OPCIONES_MODALIDAD.map(({ valor, etiqueta }) => (
-          <option value={valor}>{etiqueta}</option>
-        ))}
+      <label for="modalidad" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">{t('form.modality')}</label>
+      <select id="modalidad" name="modalidad" required
+              class="w-full rounded-lg px-4 py-3 bg-[var(--color-primary)] border border-white/10
+                     text-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
+                     focus:border-transparent cursor-pointer">
+        {modalidades.map(({ valor, etiqueta }) => <option value={valor}>{etiqueta}</option>)}
       </select>
     </div>
-
-    <!-- Fechas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label for="fecha-inicio" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">
-          Fecha de inicio
-        </label>
-        <input
-          type="date"
-          id="fecha-inicio"
-          name="fechaInicio"
-          required
-          min={hoy}
-          value={hoy}
-          class="w-full rounded-lg px-4 py-3 bg-[var(--color-primary)] border border-white/10
-                 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
-                 focus:border-transparent cursor-pointer"
-        />
+        <label for="fecha-inicio" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">{t('form.date.start')}</label>
+        <input type="date" id="fecha-inicio" name="fechaInicio" required min={hoy} value={hoy}
+               class="w-full rounded-lg px-4 py-3 bg-[var(--color-primary)] border border-white/10
+                      text-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
+                      focus:border-transparent cursor-pointer" />
       </div>
       <div>
-        <label for="fecha-fin" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">
-          Fecha de fin
-        </label>
-        <input
-          type="date"
-          id="fecha-fin"
-          name="fechaFin"
-          required
-          min={manana}
-          value={manana}
-          class="w-full rounded-lg px-4 py-3 bg-[var(--color-primary)] border border-white/10
-                 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
-                 focus:border-transparent cursor-pointer"
-        />
+        <label for="fecha-fin" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1.5">{t('form.date.end')}</label>
+        <input type="date" id="fecha-fin" name="fechaFin" required min={manana} value={manana}
+               class="w-full rounded-lg px-4 py-3 bg-[var(--color-primary)] border border-white/10
+                      text-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
+                      focus:border-transparent cursor-pointer" />
       </div>
     </div>
-
-    <!-- Resumen de precio -->
-    <div
-      id="resumen-precio"
-      aria-live="polite"
-      class="flex items-center justify-between px-4 py-3 rounded-lg
-             bg-[var(--color-primary)] border border-white/10"
-    >
-      <span class="text-sm text-[var(--color-text-muted)]">Precio estimado</span>
-      <span id="precio-estimado" class="text-[var(--color-accent)] font-bold text-lg">
-        — €
-      </span>
+    <div id="resumen-precio" aria-live="polite"
+         class="flex items-center justify-between px-4 py-3 rounded-lg bg-[var(--color-primary)] border border-white/10">
+      <span class="text-sm text-[var(--color-text-muted)]">{t('form.price.est')}</span>
+      <span id="precio-estimado" class="text-[var(--color-accent)] font-bold text-lg">{t('form.price.dash')}</span>
     </div>
-
-    <!-- Error de validación -->
     <p id="error-fecha" role="alert" class="hidden text-red-400 text-sm"></p>
-
-    <!-- Botón WhatsApp -->
-    <a
-      id="btn-whatsapp-reserva"
-      href="#"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="btn-whatsapp w-full justify-center text-base py-4"
-      aria-label="Confirmar reserva por WhatsApp"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-           class="w-5 h-5 shrink-0" aria-hidden="true">
+    <a id="btn-whatsapp-reserva" href="#" target="_blank" rel="noopener noreferrer"
+       class="btn-whatsapp w-full justify-center text-base py-4" aria-label={t('form.cta')}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 shrink-0" aria-hidden="true">
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
         <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.523 5.847L.057 23.882a.75.75 0 0 0 .921.921l6.035-1.466A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.373l-.359-.214-3.723.904.92-3.619-.234-.372A9.818 9.818 0 1 1 12 21.818z"/>
       </svg>
-      Reservar por WhatsApp
+      {t('form.cta')}
     </a>
   </form>
 </div>
-
-<script define:vars={{ vehiculo, numero }}>
-  const selectModalidad  = document.getElementById('modalidad');
-  const inputInicio      = document.getElementById('fecha-inicio');
-  const inputFin         = document.getElementById('fecha-fin');
-  const precioEl         = document.getElementById('precio-estimado');
-  const btnWA            = document.getElementById('btn-whatsapp-reserva');
-  const errorEl          = document.getElementById('error-fecha');
-
-  const preciosSinConductor = vehiculo.precioSinConductor;
-  const preciosConConductor = vehiculo.precioConConductor;
-
-  function formatearFecha(iso) {
-    if (!iso) return '';
-    const [a, m, d] = iso.split('-');
-    return `${d}/${m}/${a}`;
+<script define:vars={{ vehiculo, numero, textos }}>
+  const sel = document.getElementById('modalidad');
+  const fi  = document.getElementById('fecha-inicio');
+  const ff  = document.getElementById('fecha-fin');
+  const pe  = document.getElementById('precio-estimado');
+  const btn = document.getElementById('btn-whatsapp-reserva');
+  const err = document.getElementById('error-fecha');
+  function fmt(iso) { if(!iso) return ''; const [a,m,d]=iso.split('-'); return `${d}/${m}/${a}`; }
+  function dias(a,b) { const d=new Date(b)-new Date(a); return d>0?Math.ceil(d/86400000):0; }
+  function update() {
+    const mod=sel.value, fi_=fi.value, ff_=ff.value;
+    const n=dias(fi_,ff_);
+    const tarifa=mod==='con-conductor'?vehiculo.precioConConductor:vehiculo.precioSinConductor;
+    const precio=n>0?Math.round(n*tarifa*100)/100:null;
+    const etMod=mod==='con-conductor'?textos.withDriver:textos.withoutDriver;
+    if(ff_&&fi_&&ff_<=fi_){err.textContent=textos.errorDates;err.classList.remove('hidden');pe.textContent='— €';btn.href='#';return;}
+    err.classList.add('hidden');
+    pe.textContent=precio!==null?`${precio} €`:'— €';
+    if(n>0){
+      const msg=`${textos.greeting} *${vehiculo.nombre}*.\n\n📅 ${textos.start}: ${fmt(fi_)}\n📅 ${textos.end}: ${fmt(ff_)}\n🚗 ${textos.modality}: ${etMod}\n💶 ${textos.price}: ${precio} €\n\n${textos.question}`;
+      btn.href=`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
+    } else { btn.href='#'; }
   }
-
-  function calcularDias(inicio, fin) {
-    if (!inicio || !fin) return 0;
-    const diff = new Date(fin).getTime() - new Date(inicio).getTime();
-    return diff > 0 ? Math.ceil(diff / 86400000) : 0;
-  }
-
-  function actualizar() {
-    const modalidad    = selectModalidad.value;
-    const fechaInicio  = inputInicio.value;
-    const fechaFin     = inputFin.value;
-    const dias         = calcularDias(fechaInicio, fechaFin);
-    const tarifa       = modalidad === 'con-conductor' ? preciosConConductor : preciosSinConductor;
-    const precio       = dias > 0 ? Math.round(dias * tarifa * 100) / 100 : null;
-    const etModalidad  = modalidad === 'con-conductor' ? 'Con conductor' : 'Sin conductor';
-
-    // Validar fechas
-    if (fechaFin && fechaInicio && fechaFin <= fechaInicio) {
-      errorEl.textContent = 'La fecha de fin debe ser posterior a la de inicio.';
-      errorEl.classList.remove('hidden');
-      precioEl.textContent = '— €';
-      btnWA.href = '#';
-      return;
-    }
-    errorEl.classList.add('hidden');
-    errorEl.textContent = '';
-
-    // Actualizar precio
-    precioEl.textContent = precio !== null ? `${precio} €` : '— €';
-
-    // Construir mensaje WhatsApp
-    if (dias > 0) {
-      const msg =
-        `Hola, me interesa alquilar el vehículo *${vehiculo.nombre}*.\n\n` +
-        `📅 Fecha de inicio: ${formatearFecha(fechaInicio)}\n` +
-        `📅 Fecha de fin:    ${formatearFecha(fechaFin)}\n` +
-        `🚗 Modalidad:       ${etModalidad}\n` +
-        `💶 Precio estimado: ${precio} €\n\n` +
-        `¿Podría confirmarme la disponibilidad? Gracias.`;
-      btnWA.href = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
-    } else {
-      btnWA.href = '#';
-    }
-  }
-
-  // Sincronizar mínimo de fecha fin con fecha inicio
-  inputInicio?.addEventListener('change', () => {
-    if (inputFin && inputInicio.value >= inputFin.value) {
-      const siguienteDia = new Date(inputInicio.value);
-      siguienteDia.setDate(siguienteDia.getDate() + 1);
-      inputFin.value = siguienteDia.toISOString().split('T')[0];
-    }
-    actualizar();
-  });
-
-  inputFin?.addEventListener('change', actualizar);
-  selectModalidad?.addEventListener('change', actualizar);
-
-  // Inicializar
-  actualizar();
+  fi?.addEventListener('change',()=>{if(ff&&fi.value>=ff.value){const d=new Date(fi.value);d.setDate(d.getDate()+1);ff.value=d.toISOString().split('T')[0];}update();});
+  ff?.addEventListener('change',update);
+  sel?.addEventListener('change',update);
+  update();
 </script>
