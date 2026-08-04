@@ -1,23 +1,20 @@
 /**
  * Utilidades para el sistema de internacionalización (i18n).
+ * Soporta: ES (defecto), EN, FR, AR (RTL).
  */
 
-import { ui, DEFAULT_LANG, type Lang, type TranslationKey } from './translations';
+import { ui, DEFAULT_LANG, LANGUAGES, type Lang, type TranslationKey } from './translations';
 
-/**
- * Detecta el idioma desde la URL.
- * /en/... → 'en'  |  /... → 'es' (por defecto)
- */
+/** Detecta el idioma desde el primer segmento de la URL. */
 export function getLang(url: URL): Lang {
-  const [, firstSegment] = url.pathname.split('/');
-  if (firstSegment === 'en') return 'en';
+  const seg = url.pathname.split('/')[1];
+  if (seg === 'en') return 'en';
+  if (seg === 'fr') return 'fr';
+  if (seg === 'ar') return 'ar';
   return DEFAULT_LANG;
 }
 
-/**
- * Devuelve la función de traducción para el idioma indicado.
- * Uso: const t = useTranslations('en'); t('nav.home') → 'Home'
- */
+/** Devuelve la función t() para el idioma indicado. */
 export function useTranslations(lang: Lang) {
   return function t(key: TranslationKey): string {
     return (ui[lang] as Record<string, string>)[key]
@@ -26,65 +23,72 @@ export function useTranslations(lang: Lang) {
   };
 }
 
-/**
- * Devuelve la URL equivalente en el otro idioma.
- * /catalogo       → /en/catalogue   (ES → EN)
- * /en/catalogue   → /catalogo       (EN → ES)
- */
+/** Prefijo de ruta para un idioma ('' para ES, '/en', '/fr', '/ar'). */
+export function getPathPrefix(lang: Lang): string {
+  return lang === DEFAULT_LANG ? '' : `/${lang}`;
+}
+
+/** Indica si el idioma se escribe de derecha a izquierda. */
+export function isRTL(lang: Lang): boolean {
+  return LANGUAGES.find(l => l.code === lang)?.dir === 'rtl';
+}
+
+/** Rutas de navegación según idioma. */
+export function getNavLinks(lang: Lang) {
+  const p = getPathPrefix(lang);
+  // EN tiene nombres de ruta en inglés; FR y AR usan el mismo patrón /fr/ /ar/
+  const catSlug     = lang === 'en' ? 'catalogue'  : 'catalogo';
+  const contactSlug = lang === 'en' ? 'contact'     : 'contacto';
+  return [
+    { href: p || '/',                         key: 'nav.home'      },
+    { href: `${p}/${catSlug}`,                key: 'nav.catalogue' },
+    { href: `${p}/${contactSlug}`,            key: 'nav.contact'   },
+  ];
+}
+
+/** Devuelve la URL equivalente en otro idioma. */
 export function getAlternateUrl(url: URL, targetLang: Lang): string {
   const path = url.pathname;
 
-  // Mapa de rutas ES → EN
-  const rutas: Record<string, string> = {
-    '/':          '/en',
-    '/catalogo':  '/en/catalogue',
-    '/contacto':  '/en/contact',
+  // Mapa de slugs de ruta por idioma
+  const slugs: Record<Lang, { cat: string; contact: string; vehicle: string }> = {
+    es: { cat: 'catalogo',   contact: 'contacto', vehicle: 'vehiculo' },
+    en: { cat: 'catalogue',  contact: 'contact',  vehicle: 'vehicle'  },
+    fr: { cat: 'catalogue',  contact: 'contact',  vehicle: 'vehicle'  },
+    ar: { cat: 'catalogue',  contact: 'contact',  vehicle: 'vehicle'  },
   };
-  // Mapa inverso EN → ES
-  const rutasInverso: Record<string, string> = Object.fromEntries(
-    Object.entries(rutas).map(([es, en]) => [en, es])
-  );
 
-  if (targetLang === 'en') {
-    // Buscar coincidencia exacta o de prefijo para páginas de detalle
-    if (rutas[path]) return rutas[path];
-    if (path.startsWith('/vehiculo/')) {
-      return path.replace('/vehiculo/', '/en/vehicle/');
-    }
-    return `/en${path}`;
-  } else {
-    if (rutasInverso[path]) return rutasInverso[path];
-    if (path.startsWith('/en/vehicle/')) {
-      return path.replace('/en/vehicle/', '/vehiculo/');
-    }
-    if (path.startsWith('/en')) return path.replace('/en', '') || '/';
-    return path;
+  // Detectar idioma actual desde la URL
+  const currentLang = getLang(url);
+  const currentSlug = slugs[currentLang];
+  const targetSlug  = slugs[targetLang];
+  const targetPrefix = getPathPrefix(targetLang);
+
+  // Quitar prefijo del idioma actual
+  let cleanPath = path;
+  if (currentLang !== DEFAULT_LANG) {
+    cleanPath = path.replace(`/${currentLang}`, '') || '/';
   }
+
+  // Remplazar slugs de ruta
+  cleanPath = cleanPath
+    .replace(`/${currentSlug.cat}`,     `/${targetSlug.cat}`)
+    .replace(`/${currentSlug.contact}`, `/${targetSlug.contact}`)
+    .replace(`/${currentSlug.vehicle}/`, `/${targetSlug.vehicle}/`);
+
+  // Añadir prefijo del idioma destino
+  if (targetLang === DEFAULT_LANG) {
+    return cleanPath || '/';
+  }
+  return `${targetPrefix}${cleanPath === '/' ? '' : cleanPath}` || targetPrefix || '/';
 }
 
-/**
- * Prefijos de ruta según idioma.
- * Útil para construir href en componentes.
- */
-export function getPathPrefix(lang: Lang): string {
-  return lang === 'en' ? '/en' : '';
-}
-
-/**
- * Rutas de navegación según idioma.
- */
-export function getNavLinks(lang: Lang) {
-  const prefix = getPathPrefix(lang);
-  if (lang === 'en') {
-    return [
-      { href: '/en',             key: 'nav.home'      },
-      { href: '/en/catalogue',   key: 'nav.catalogue' },
-      { href: '/en/contact',     key: 'nav.contact'   },
-    ];
-  }
-  return [
-    { href: '/',          key: 'nav.home'      },
-    { href: '/catalogo',  key: 'nav.catalogue' },
-    { href: '/contacto',  key: 'nav.contact'   },
-  ];
+/** Lista de todos los idiomas disponibles con sus URLs alternas. */
+export function getAllAlternates(url: URL): { lang: Lang; label: string; flag: string; href: string }[] {
+  return LANGUAGES.map(l => ({
+    lang:  l.code,
+    label: l.label,
+    flag:  l.flag,
+    href:  getAlternateUrl(url, l.code),
+  }));
 }

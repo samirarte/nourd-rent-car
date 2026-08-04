@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeroSeccion from '../../components/inicio/HeroSeccion.astro';
+import VehiculosDestacados from '../../components/inicio/VehiculosDestacados.astro';
+import PorQueElegirnos from '../../components/inicio/PorQueElegirnos.astro';
+import { obtenerVehiculosDestacados } from '../../lib/vehiculos';
+const lang = 'ar' as const;
+const v = await obtenerVehiculosDestacados();
+---
+<BaseLayout lang={lang} titulo="تأجير سيارات فاخرة"
+  descripcion="Nourd Rent Car — تأجير سيارات فاخرة مع سائق وبدون سائق في الدار البيضاء، المغرب. SUV، مرسيدس، داسيا والمزيد. احجز مباشرة عبر واتساب.">
+  <HeroSeccion lang={lang} />
+  <VehiculosDestacados vehiculos={v} lang={lang} />
+  <PorQueElegirnos lang={lang} />
+</BaseLayout>

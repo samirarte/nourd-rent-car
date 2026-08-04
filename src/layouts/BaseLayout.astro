@@ -7,8 +7,8 @@ import '../styles/global.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import BotonWhatsApp from '../components/ui/BotonWhatsApp.astro';
-import { getLang, useTranslations, getAlternateUrl } from '../i18n/utils';
-import type { Lang } from '../i18n/translations';
+import { getLang, useTranslations, getAlternateUrl, isRTL, getAllAlternates } from '../i18n/utils';
+import { LANGUAGES, type Lang } from '../i18n/translations';
 
 interface Props {
   titulo: string;
@@ -32,11 +32,13 @@ const numeroWhatsApp = import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? '34600000000';
 const mensajeGeneral = encodeURIComponent(t('wa.general'));
 const enlaceWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeGeneral}`;
 const urlAlternate   = getAlternateUrl(Astro.url, lang === 'es' ? 'en' : 'es');
-const ogLocale       = lang === 'en' ? 'en_GB' : 'es_ES';
+const ogLocale       = lang === 'en' ? 'en_GB' : lang === 'fr' ? 'fr_FR' : lang === 'ar' ? 'ar_MA' : 'es_ES';
+const dir            = isRTL(lang) ? 'rtl' : 'ltr';
+const alternates     = getAllAlternates(Astro.url);
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} dir={dir}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -47,9 +49,10 @@ const ogLocale       = lang === 'en' ? 'en_GB' : 'es_ES';
     <link rel="canonical" href={url} />
 
     <!-- Idioma alternativo (hreflang) -->
-    <link rel="alternate" hreflang={lang}                         href={url} />
-    <link rel="alternate" hreflang={lang === 'es' ? 'en' : 'es'} href={urlAlternate} />
-    <link rel="alternate" hreflang="x-default"                    href={Astro.site ?? '/'} />
+    {alternates.map(a => (
+      <link rel="alternate" hreflang={a.lang} href={a.href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={Astro.site ?? '/'} />
 
     <!-- Open Graph -->
     <meta property="og:type"        content="website" />

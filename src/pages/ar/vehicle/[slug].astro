@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GaleriaImagenes from '../../../components/detalle/GaleriaImagenes.astro';
+import EspecificacionesTecnicas from '../../../components/detalle/EspecificacionesTecnicas.astro';
+import FormularioReserva from '../../../components/detalle/FormularioReserva.astro';
+import Badge from '../../../components/ui/Badge.astro';
+import { obtenerVehiculoPorSlug } from '../../../lib/vehiculos';
+import { useTranslations } from '../../../i18n/utils';
+const lang = 'ar' as const;
+const t = useTranslations(lang);
+const { slug } = Astro.params;
+const vehiculo = await obtenerVehiculoPorSlug(slug!);
+if (!vehiculo) return Astro.redirect('/ar/catalogue', 302);
+---
+<BaseLayout lang={lang} titulo={vehiculo.nombre} descripcion={vehiculo.descripcionLarga.slice(0,160)} imagen={vehiculo.imagenPrincipal}>
+  <div class="section-container py-12">
+    <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-8">
+      <a href="/ar" class="hover:text-[var(--color-accent)] transition-colors">{t('detail.breadcrumb.home')}</a>
+      <span>/</span>
+      <a href="/ar/catalogue" class="hover:text-[var(--color-accent)] transition-colors">{t('detail.breadcrumb.catalogue')}</a>
+      <span>/</span>
+      <span class="text-white" aria-current="page">{vehiculo.nombre}</span>
+    </nav>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+      <div class="space-y-8">
+        <div>
+          <Badge texto={vehiculo.categoria} variante="dorado" />
+          <h1 class="font-heading text-3xl md:text-4xl font-bold text-white mt-3 mb-2">{vehiculo.nombre}</h1>
+          <p class="text-[var(--color-text-muted)]">{vehiculo.descripcion}</p>
+        </div>
+        <GaleriaImagenes imagenPrincipal={vehiculo.imagenPrincipal} imagenes={vehiculo.imagenes} nombreVehiculo={vehiculo.nombre} />
+        <div>
+          <h2 class="font-heading text-lg font-semibold text-white mb-4">{t('detail.specs')}</h2>
+          <EspecificacionesTecnicas plazas={vehiculo.plazas} transmision={vehiculo.transmision} combustible={vehiculo.combustible} categoria={vehiculo.categoria} lang={lang} />
+        </div>
+        <div>
+          <h2 class="font-heading text-lg font-semibold text-white mb-3">{t('detail.description')}</h2>
+          <p class="text-[var(--color-text-muted)] leading-relaxed">{vehiculo.descripcionLarga}</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-[var(--color-primary-light)] border border-white/10 text-center">
+            <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest mb-1">{t('detail.without.driver')}</p>
+            <p class="font-heading text-2xl font-bold text-[var(--color-accent)]">{vehiculo.precioSinConductor} €<span class="text-sm font-normal text-[var(--color-text-muted)]">{t('detail.per.day')}</span></p>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--color-primary-light)] border border-white/10 text-center">
+            <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-widest mb-1">{t('detail.with.driver')}</p>
+            <p class="font-heading text-2xl font-bold text-[var(--color-accent)]">{vehiculo.precioConConductor} €<span class="text-sm font-normal text-[var(--color-text-muted)]">{t('detail.per.day')}</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="lg:sticky lg:top-24"><FormularioReserva vehiculo={vehiculo} lang={lang} /></div>
+    </div>
+  </div>
+</BaseLayout>
