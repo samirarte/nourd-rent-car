@@ -1,27 +1,24 @@
 ---
-/**
- * /vehicle/[slug] — Página de detalle FR (idioma por defecto, sin prefijo)
- */
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import GaleriaImagenes from '../../components/detalle/GaleriaImagenes.astro';
-import EspecificacionesTecnicas from '../../components/detalle/EspecificacionesTecnicas.astro';
-import FormularioReserva from '../../components/detalle/FormularioReserva.astro';
-import Badge from '../../components/ui/Badge.astro';
-import { obtenerVehiculoPorSlug } from '../../lib/vehiculos';
-import { useTranslations } from '../../i18n/utils';
-const lang = 'fr' as const;
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GaleriaImagenes from '../../../components/detalle/GaleriaImagenes.astro';
+import EspecificacionesTecnicas from '../../../components/detalle/EspecificacionesTecnicas.astro';
+import FormularioReserva from '../../../components/detalle/FormularioReserva.astro';
+import Badge from '../../../components/ui/Badge.astro';
+import { obtenerVehiculoPorSlug } from '../../../lib/vehiculos';
+import { useTranslations } from '../../../i18n/utils';
+const lang = 'es' as const;
 const t = useTranslations(lang);
 const { slug } = Astro.params;
 const vehiculo = await obtenerVehiculoPorSlug(slug!);
-if (!vehiculo) return Astro.redirect('/catalogue', 302);
+if (!vehiculo) return Astro.redirect('/es/catalogo', 302);
 ---
 <BaseLayout lang={lang} titulo={vehiculo.nombre}
   descripcion={vehiculo.descripcionLarga.slice(0,160)} imagen={vehiculo.imagenPrincipal}>
   <div class="section-container py-12">
     <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-sm text-[var(--color-text-muted)] mb-8">
-      <a href="/" class="hover:text-[var(--color-accent)] transition-colors">{t('detail.breadcrumb.home')}</a>
+      <a href="/es" class="hover:text-[var(--color-accent)] transition-colors">{t('detail.breadcrumb.home')}</a>
       <span>/</span>
-      <a href="/catalogue" class="hover:text-[var(--color-accent)] transition-colors">{t('detail.breadcrumb.catalogue')}</a>
+      <a href="/es/catalogo" class="hover:text-[var(--color-accent)] transition-colors">{t('detail.breadcrumb.catalogue')}</a>
       <span>/</span>
       <span class="text-white" aria-current="page">{vehiculo.nombre}</span>
     </nav>

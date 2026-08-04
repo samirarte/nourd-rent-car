@@ -1,21 +1,19 @@
 ---
 /**
- * Página de inicio — Nourd Rent Car
+ * Página de inicio — Nourd Rent Car (Français — langue par défaut)
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroSeccion from '../components/inicio/HeroSeccion.astro';
 import VehiculosDestacados from '../components/inicio/VehiculosDestacados.astro';
 import PorQueElegirnos from '../components/inicio/PorQueElegirnos.astro';
 import { obtenerVehiculosDestacados } from '../lib/vehiculos';
-
+const lang = 'fr' as const;
 const vehiculosDestacados = await obtenerVehiculosDestacados();
 ---
-
-<BaseLayout
-  titulo="Alquiler de Vehículos Premium"
-  descripcion="Nourd Rent Car — Alquiler de vehículos de lujo con y sin conductor. SUVs, Mercedes, Dacia y más. Reserva directa por WhatsApp."
->
-  <HeroSeccion />
-  <VehiculosDestacados vehiculos={vehiculosDestacados} />
-  <PorQueElegirnos />
+<BaseLayout lang={lang}
+  titulo="Location de Véhicules Premium"
+  descripcion="Nourd Rent Car — Location de véhicules de luxe avec et sans chauffeur à Casablanca, Maroc. SUV, Mercedes, Dacia et plus. Réservez directement via WhatsApp.">
+  <HeroSeccion lang={lang} />
+  <VehiculosDestacados vehiculos={vehiculosDestacados} lang={lang} />
+  <PorQueElegirnos lang={lang} />
 </BaseLayout>

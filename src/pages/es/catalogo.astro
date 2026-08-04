@@ -1,27 +1,24 @@
 ---
-/**
- * /catalogue — Catálogo FR (idioma por defecto, sin prefijo de URL)
- */
 export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FiltroCategorias from '../../components/catalogo/FiltroCategorias.astro';
 import ListadoVehiculos from '../../components/catalogo/ListadoVehiculos.astro';
 import { obtenerVehiculos, obtenerCategorias } from '../../lib/vehiculos';
 import { useTranslations } from '../../i18n/utils';
-const lang = 'fr' as const;
+const lang = 'es' as const;
 const t = useTranslations(lang);
-const cat = Astro.url.searchParams.get('categoria') ?? 'Tous';
+const cat = Astro.url.searchParams.get('categoria') ?? 'Todos';
 const categorias = await obtenerCategorias();
-const vehiculos  = await obtenerVehiculos(cat === 'Tous' ? undefined : cat);
+const vehiculos  = await obtenerVehiculos(cat === 'Todos' ? undefined : cat);
 ---
 <BaseLayout lang={lang}
-  titulo={cat !== 'Tous' ? `Véhicules — ${cat}` : 'Catalogue de Véhicules'}
-  descripcion={`Explorez notre flotte${cat !== 'Tous' ? ` — ${cat}` : ''}. Avec et sans chauffeur. Réservez directement via WhatsApp.`}>
+  titulo={cat !== 'Todos' ? `Vehículos — ${cat}` : 'Catálogo de Vehículos'}
+  descripcion={`Explora nuestra flota${cat !== 'Todos' ? ` — ${cat}` : ''}. Con y sin conductor. Reserva directa por WhatsApp.`}>
   <div class="section-container py-16">
     <div class="mb-10">
       <p class="text-[var(--color-accent)] text-sm font-semibold uppercase tracking-widest mb-2">{t('catalogue.fleet')}</p>
       <h1 class="font-heading text-3xl md:text-4xl font-bold text-white mb-6">
-        {cat !== 'Tous' ? `${t('catalogue.title.prefix')} ${cat}` : t('catalogue.title')}
+        {cat !== 'Todos' ? `${t('catalogue.title.prefix')} ${cat}` : t('catalogue.title')}
       </h1>
       <FiltroCategorias categorias={categorias} categoriaActiva={cat} lang={lang} />
     </div>

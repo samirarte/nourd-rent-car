@@ -1,15 +1,15 @@
 /**
- * Traducciones de la interfaz en ES, EN, FR y AR.
- * Español es el idioma por defecto.
+ * Traducciones de la interfaz en FR, ES, EN y AR.
+ * Francés es el idioma por defecto.
  */
 
-export type Lang = 'es' | 'en' | 'fr' | 'ar';
-export const DEFAULT_LANG: Lang = 'es';
+export type Lang = 'fr' | 'es' | 'en' | 'ar';
+export const DEFAULT_LANG: Lang = 'fr';
 export const LANGUAGES: { code: Lang; label: string; flag: string; dir: 'ltr' | 'rtl' }[] = [
-  { code: 'es', label: 'ES', flag: '🇲🇦', dir: 'ltr' },
-  { code: 'en', label: 'EN', flag: '🇬🇧', dir: 'ltr' },
   { code: 'fr', label: 'FR', flag: '🇫🇷', dir: 'ltr' },
-  { code: 'ar', label: 'AR', flag: '🇸🇦', dir: 'rtl' },
+  { code: 'es', label: 'ES', flag: '🇪🇸', dir: 'ltr' },
+  { code: 'en', label: 'EN', flag: '🇬🇧', dir: 'ltr' },
+  { code: 'ar', label: 'AR', flag: '🇲🇦', dir: 'rtl' },
 ];
 
 export const ui = {

@@ -244,6 +244,42 @@ const galeriaInicial: string[] = esEdicion
       <p style="font-size:.75rem;margin-top:.25rem;">JPEG, PNG, WebP, AVIF · Máx. 5 MB por imagen</p>
     </div>
     <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/avif"
+           multiple capture="environment" style="display:none;" />
+
+    <!-- Botón adicional: cámara (móvil) -->
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+      <button type="button" id="btn-galeria"
+              style="flex:1;min-width:140px;display:inline-flex;align-items:center;justify-content:center;
+                     gap:.5rem;padding:.6rem 1rem;background:transparent;border:1px dashed var(--border);
+                     border-radius:var(--r);color:var(--muted);font-size:.82rem;cursor:pointer;
+                     transition:border-color .2s,color .2s;"
+              onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;" aria-hidden="true">
+          <path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/>
+        </svg>
+        Tomar foto con cámara
+      </button>
+      <button type="button" id="btn-archivo"
+              style="flex:1;min-width:140px;display:inline-flex;align-items:center;justify-content:center;
+                     gap:.5rem;padding:.6rem 1rem;background:transparent;border:1px dashed var(--border);
+                     border-radius:var(--r);color:var(--muted);font-size:.82rem;cursor:pointer;
+                     transition:border-color .2s,color .2s;"
+              onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;" aria-hidden="true">
+          <path d="M9.25 13.25a.75.75 0 0 0 1.5 0V4.636l2.955 3.129a.75.75 0 0 0 1.09-1.03l-4.25-4.5a.75.75 0 0 0-1.09 0l-4.25 4.5a.75.75 0 1 0 1.09 1.03L9.25 4.636v8.614Z"/>
+          <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/>
+        </svg>
+        Subir desde galería
+      </button>
+    </div>
+
+    <!-- Input cámara (sin multiple para activar captura directa) -->
+    <input type="file" id="file-input-camara" accept="image/jpeg,image/png,image/webp,image/avif"
+           capture="environment" style="display:none;" />
+    <!-- Input galería (multiple, sin capture) -->
+    <input type="file" id="file-input-galeria" accept="image/jpeg,image/png,image/webp,image/avif"
            multiple style="display:none;" />
 
     <!-- Barra de estado de subida -->
@@ -373,8 +409,8 @@ async function subirArchivos(archivos) {
 }
 
 // Zona de arrastre
-zonaDrop.addEventListener('click', () => fileInput.click());
-zonaDrop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+zonaDrop.addEventListener('click', () => document.getElementById('file-input-galeria').click());
+zonaDrop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') document.getElementById('file-input-galeria').click(); });
 zonaDrop.addEventListener('dragover',  (e) => { e.preventDefault(); zonaDrop.classList.add('drag-over'); });
 zonaDrop.addEventListener('dragleave', ()  => zonaDrop.classList.remove('drag-over'));
 zonaDrop.addEventListener('drop', (e) => {
@@ -382,9 +418,23 @@ zonaDrop.addEventListener('drop', (e) => {
   zonaDrop.classList.remove('drag-over');
   if (e.dataTransfer.files.length) subirArchivos(e.dataTransfer.files);
 });
-fileInput.addEventListener('change', () => {
-  if (fileInput.files.length) subirArchivos(fileInput.files);
-  fileInput.value = '';
+
+// Botón cámara
+document.getElementById('btn-galeria').addEventListener('click', () =>
+  document.getElementById('file-input-camara').click());
+
+// Botón galería
+document.getElementById('btn-archivo').addEventListener('click', () =>
+  document.getElementById('file-input-galeria').click());
+
+// Inputs de archivo
+document.getElementById('file-input-camara').addEventListener('change', (e) => {
+  if (e.target.files.length) subirArchivos(e.target.files);
+  e.target.value = '';
+});
+document.getElementById('file-input-galeria').addEventListener('change', (e) => {
+  if (e.target.files.length) subirArchivos(e.target.files);
+  e.target.value = '';
 });
 
 // ─── Generación automática de slug ────────────────────────────────────────
