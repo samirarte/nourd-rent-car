@@ -1,0 +1,460 @@
+---
+/**
+ * FormVehiculo — Formulario completo de creación / edición de un vehículo.
+ * Incluye gestor de galería de imágenes con subida por arrastrar o clic,
+ * previsualización, reordenación y eliminación de cada foto.
+ *
+ * Props:
+ *   vehiculo?  — objeto Vehiculo existente (modo edición) o undefined (modo nuevo)
+ *   accion     — URL del endpoint destino
+ */
+import type { Vehiculo } from '../../types/vehiculo';
+interface Props {
+  vehiculo?: Vehiculo;
+  accion: string;
+}
+const { vehiculo, accion } = Astro.props;
+const esEdicion = !!vehiculo;
+const categorias    = ['SUV', 'Mercedes', 'Dacia', 'Berlina', 'Utilitario', 'Otro'];
+const transmisiones = ['Automático', 'Manual'];
+const combustibles  = ['Gasolina', 'Diésel', 'Híbrido', 'Eléctrico'];
+
+// Galería inicial (imagen principal + adicionales)
+const galeriaInicial: string[] = esEdicion
+  ? [vehiculo!.imagenPrincipal, ...vehiculo!.imagenes.filter(Boolean)]
+  : [];
+---
+
+<style>
+  /* ── variables compartidas con el admin ── */
+  :root {
+    --bg:#1A1A2E; --bg2:#16213E; --accent:#C9A84C; --accentH:#B8973D;
+    --text:#F5F5F5; --muted:#9CA3AF; --success:#25D366;
+    --danger:#EF4444; --border:rgba(255,255,255,0.08); --r:.625rem;
+  }
+  .form-card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:1rem; padding:2rem;
+  }
+  .section-title {
+    font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--accent); margin-bottom:1rem; padding-bottom:.5rem;
+    border-bottom:1px solid var(--border);
+  }
+  .field { display:flex; flex-direction:column; gap:.4rem; }
+  .field label { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .field input, .field select, .field textarea {
+    padding:.65rem .85rem; background:var(--bg); border:1px solid var(--border);
+    border-radius:var(--r); color:var(--text); font-size:.875rem; outline:none;
+    font-family:inherit; transition:border-color .2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color:var(--accent);
+  }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+  @media(max-width:640px){ .grid-2,.grid-3{ grid-template-columns:1fr; } }
+
+  /* ── Gestor galería ── */
+  #zona-drop {
+    border:2px dashed var(--border); border-radius:var(--r); padding:2rem 1rem;
+    text-align:center; cursor:pointer; transition:border-color .2s,background .2s;
+  }
+  #zona-drop.drag-over {
+    border-color:var(--accent); background:rgba(201,168,76,.05);
+  }
+  #zona-drop p { color:var(--muted); font-size:.85rem; margin-top:.5rem; }
+  #zona-drop span { color:var(--accent); }
+
+  #galeria-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+    gap:.75rem; margin-top:1rem;
+  }
+  .foto-item {
+    position:relative; border-radius:var(--r); overflow:hidden;
+    border:2px solid transparent; transition:border-color .2s;
+    aspect-ratio:4/3; background:var(--bg);
+  }
+  .foto-item.principal { border-color:var(--accent); }
+  .foto-item img { width:100%; height:100%; object-fit:cover; display:block; }
+
+  .foto-badge {
+    position:absolute; top:.3rem; left:.3rem;
+    background:var(--accent); color:var(--bg); font-size:.6rem; font-weight:700;
+    padding:.15rem .45rem; border-radius:999px; text-transform:uppercase; letter-spacing:.05em;
+  }
+  .foto-overlay {
+    position:absolute; inset:0; background:rgba(0,0,0,0); display:flex;
+    align-items:center; justify-content:center; gap:.4rem; transition:background .2s;
+  }
+  .foto-item:hover .foto-overlay { background:rgba(0,0,0,.55); }
+  .foto-btn {
+    opacity:0; background:rgba(255,255,255,.15); border:none; border-radius:.4rem;
+    color:#fff; width:30px; height:30px; cursor:pointer; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity .2s, background .2s;
+  }
+  .foto-item:hover .foto-btn { opacity:1; }
+  .foto-btn:hover { background:rgba(255,255,255,.3); }
+  .foto-btn.del:hover { background:var(--danger); }
+
+  .foto-progress {
+    position:absolute; bottom:0; left:0; height:3px;
+    background:var(--accent); width:0%; transition:width .3s;
+  }
+
+  .bar-subida {
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:.78rem; color:var(--muted); margin-top:.75rem;
+  }
+  #upload-status { color:var(--accent); }
+
+  /* ── Checkboxes ── */
+  .check-row { display:flex; gap:2rem; flex-wrap:wrap; }
+  .check-label { display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.875rem; color:var(--muted); }
+  .check-label input { width:1rem; height:1rem; cursor:pointer; }
+
+  /* ── Acciones formulario ── */
+  .form-actions { display:flex; gap:.75rem; justify-content:flex-end; padding-top:.5rem; }
+  .btn { display:inline-flex; align-items:center; gap:.4rem; padding:.65rem 1.25rem;
+         border-radius:var(--r); border:none; cursor:pointer; font-size:.875rem;
+         font-weight:600; transition:background .15s,transform .1s; }
+  .btn:hover { transform:translateY(-1px); }
+  .btn-primary { background:var(--accent); color:var(--bg); }
+  .btn-primary:hover { background:var(--accentH); }
+  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+  .btn-ghost:hover { color:var(--text); border-color:rgba(255,255,255,.2); }
+  .error-box {
+    padding:.65rem .9rem; background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3);
+    border-radius:var(--r); color:#F87171; font-size:.825rem;
+  }
+</style>
+
+<form id="form-vehiculo" style="display:grid;gap:1.5rem;">
+
+  <!-- ── Sección 1: Identificación ── -->
+  <div class="form-card" style="display:grid;gap:1rem;">
+    <p class="section-title">Identificación</p>
+    <div class="grid-2">
+      <div class="field">
+        <label for="f-nombre">Nombre *</label>
+        <input id="f-nombre" name="nombre" type="text" required
+               placeholder="Mercedes Clase E" value={vehiculo?.nombre ?? ''} />
+      </div>
+      <div class="field">
+        <label for="f-slug">Slug * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(usado en la URL)</span></label>
+        <input id="f-slug" name="slug" type="text" required
+               placeholder="mercedes-clase-e" value={vehiculo?.slug ?? ''} />
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <label for="f-categoria">Categoría *</label>
+        <select id="f-categoria" name="categoria" required>
+          {categorias.map(c => (
+            <option value={c} selected={vehiculo?.categoria === c}>{c}</option>
+          ))}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-transmision">Transmisión</label>
+        <select id="f-transmision" name="transmision">
+          {transmisiones.map(t => (
+            <option value={t} selected={vehiculo?.transmision === t}>{t}</option>
+          ))}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-combustible">Combustible</label>
+        <select id="f-combustible" name="combustible">
+          {combustibles.map(c => (
+            <option value={c} selected={vehiculo?.combustible === c}>{c}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Sección 2: Precios y specs ── -->
+  <div class="form-card" style="display:grid;gap:1rem;">
+    <p class="section-title">Precios y especificaciones</p>
+    <div class="grid-3">
+      <div class="field">
+        <label for="f-precio-sc">€/día sin conductor *</label>
+        <input id="f-precio-sc" name="precioSinConductor" type="number" min="0" step="0.01" required
+               placeholder="45" value={vehiculo?.precioSinConductor ?? ''} />
+      </div>
+      <div class="field">
+        <label for="f-precio-cc">€/día con conductor *</label>
+        <input id="f-precio-cc" name="precioConConductor" type="number" min="0" step="0.01" required
+               placeholder="75" value={vehiculo?.precioConConductor ?? ''} />
+      </div>
+      <div class="field">
+        <label for="f-plazas">Plazas *</label>
+        <input id="f-plazas" name="plazas" type="number" min="1" max="20" required
+               placeholder="5" value={vehiculo?.plazas ?? ''} />
+      </div>
+    </div>
+    <div class="check-row">
+      <label class="check-label">
+        <input type="checkbox" id="f-disponible" style="accent-color:var(--success);"
+               checked={vehiculo ? vehiculo.disponible : true} />
+        Disponible para reserva
+      </label>
+      <label class="check-label">
+        <input type="checkbox" id="f-destacado" style="accent-color:var(--accent);"
+               checked={vehiculo ? vehiculo.destacado : false} />
+        Destacado en la página de inicio
+      </label>
+    </div>
+  </div>
+
+  <!-- ── Sección 3: Descripciones ── -->
+  <div class="form-card" style="display:grid;gap:1rem;">
+    <p class="section-title">Descripciones</p>
+    <div class="field">
+      <label for="f-desc">Descripción corta * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(aparece en la tarjeta del catálogo)</span></label>
+      <input id="f-desc" name="descripcion" type="text" required
+             placeholder="Descripción breve para la tarjeta" value={vehiculo?.descripcion ?? ''} />
+    </div>
+    <div class="field">
+      <label for="f-desc-larga">Descripción completa * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(página de detalle)</span></label>
+      <textarea id="f-desc-larga" name="descripcionLarga" required rows="4"
+                placeholder="Descripción completa con todos los detalles del vehículo…">{vehiculo?.descripcionLarga ?? ''}</textarea>
+    </div>
+  </div>
+
+  <!-- ── Sección 4: Galería de imágenes ── -->
+  <div class="form-card" style="display:grid;gap:1rem;">
+    <p class="section-title">
+      Galería de imágenes
+      <span style="font-weight:400;text-transform:none;font-size:.7rem;color:var(--muted);margin-inline-start:.5rem;">
+        La primera imagen es la principal · Arrastra para reordenar
+      </span>
+    </p>
+
+    <!-- Zona de arrastre / clic -->
+    <div id="zona-drop" tabindex="0" role="button" aria-label="Añadir imágenes">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" style="width:2.5rem;height:2.5rem;color:var(--muted);margin:0 auto;">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+      </svg>
+      <p>Arrastra imágenes aquí o <span>haz clic para seleccionar</span></p>
+      <p style="font-size:.75rem;margin-top:.25rem;">JPEG, PNG, WebP, AVIF · Máx. 5 MB por imagen</p>
+    </div>
+    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/avif"
+           multiple style="display:none;" />
+
+    <!-- Barra de estado de subida -->
+    <div class="bar-subida">
+      <span id="upload-status"></span>
+      <span id="foto-count" style="color:var(--muted);"></span>
+    </div>
+
+    <!-- Grid de previsualizaciones -->
+    <div id="galeria-grid"></div>
+
+    <!-- Campo oculto con el JSON de imágenes -->
+    <input type="hidden" id="f-galeria-json" name="galeriaJson" value={JSON.stringify(galeriaInicial)} />
+  </div>
+
+  <!-- Error global -->
+  <div id="form-error" class="error-box" style="display:none;"></div>
+
+  <!-- Acciones -->
+  <div class="form-actions">
+    <a href="/admin" class="btn btn-ghost">Cancelar</a>
+    <button type="submit" id="btn-guardar" class="btn btn-primary">
+      {esEdicion ? 'Guardar cambios' : 'Crear vehículo'}
+    </button>
+  </div>
+</form>
+
+<script define:vars={{ galeriaInicial, accion, esEdicion }}>
+// ─── Estado ────────────────────────────────────────────────────────────────
+let galeria = [...galeriaInicial]; // array de URLs (la [0] es la principal)
+
+// ─── DOM refs ──────────────────────────────────────────────────────────────
+const zonaDrop    = document.getElementById('zona-drop');
+const fileInput   = document.getElementById('file-input');
+const galeriaGrid = document.getElementById('galeria-grid');
+const galeriaJson = document.getElementById('f-galeria-json');
+const statusEl    = document.getElementById('upload-status');
+const countEl     = document.getElementById('foto-count');
+const formEl      = document.getElementById('form-vehiculo');
+const errorEl     = document.getElementById('form-error');
+const btnGuardar  = document.getElementById('btn-guardar');
+
+// ─── Render galería ────────────────────────────────────────────────────────
+function renderGaleria() {
+  galeriaGrid.innerHTML = '';
+  galeria.forEach((url, idx) => {
+    const item = document.createElement('div');
+    item.className  = 'foto-item' + (idx === 0 ? ' principal' : '');
+    item.draggable  = true;
+    item.dataset.idx = idx;
+
+    item.innerHTML = `
+      <img src="${url}" alt="Foto ${idx + 1}"
+           onerror="this.src='/vehiculos/placeholder.jpg'" />
+      ${idx === 0 ? '<span class="foto-badge">Principal</span>' : ''}
+      <div class="foto-overlay">
+        ${idx > 0 ? `<button type="button" class="foto-btn" data-action="principal" title="Hacer principal">★</button>` : ''}
+        ${idx > 0 ? `<button type="button" class="foto-btn" data-action="izq" title="Mover izquierda">←</button>` : ''}
+        ${idx < galeria.length - 1 ? `<button type="button" class="foto-btn" data-action="der" title="Mover derecha">→</button>` : ''}
+        <button type="button" class="foto-btn del" data-action="del" title="Eliminar">✕</button>
+      </div>`;
+
+    // Botones de acción
+    item.querySelectorAll('.foto-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const accion = btn.dataset.action;
+        if (accion === 'del')       { galeria.splice(idx, 1); }
+        if (accion === 'principal') { const [el] = galeria.splice(idx, 1); galeria.unshift(el); }
+        if (accion === 'izq' && idx > 0) { [galeria[idx-1], galeria[idx]] = [galeria[idx], galeria[idx-1]]; }
+        if (accion === 'der' && idx < galeria.length - 1) { [galeria[idx], galeria[idx+1]] = [galeria[idx+1], galeria[idx]]; }
+        sincronizar();
+        renderGaleria();
+      });
+    });
+
+    // Drag & drop para reordenar
+    item.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', idx); });
+    item.addEventListener('dragover',  (e) => { e.preventDefault(); item.style.opacity = '.5'; });
+    item.addEventListener('dragleave', ()  => { item.style.opacity = '1'; });
+    item.addEventListener('drop', (e) => {
+      e.preventDefault();
+      item.style.opacity = '1';
+      const desde = parseInt(e.dataTransfer.getData('text/plain'));
+      if (desde === idx) return;
+      const [el] = galeria.splice(desde, 1);
+      galeria.splice(idx, 0, el);
+      sincronizar();
+      renderGaleria();
+    });
+
+    galeriaGrid.appendChild(item);
+  });
+
+  countEl.textContent = galeria.length
+    ? `${galeria.length} imagen${galeria.length > 1 ? 'es' : ''} · La primera es la principal`
+    : '';
+}
+
+function sincronizar() {
+  galeriaJson.value = JSON.stringify(galeria);
+}
+
+// ─── Subida de archivos ────────────────────────────────────────────────────
+async function subirArchivos(archivos) {
+  const lista = Array.from(archivos).filter(f => f.type.startsWith('image/'));
+  if (!lista.length) return;
+
+  for (let i = 0; i < lista.length; i++) {
+    const archivo = lista[i];
+    statusEl.textContent = `Subiendo ${i + 1}/${lista.length}: ${archivo.name}…`;
+    try {
+      const fd = new FormData();
+      fd.append('imagen', archivo);
+      const res  = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) { statusEl.textContent = `Error: ${data.error}`; continue; }
+      galeria.push(data.url);
+      sincronizar();
+      renderGaleria();
+    } catch (err) {
+      statusEl.textContent = `Error de red al subir ${archivo.name}`;
+    }
+  }
+  statusEl.textContent = `✓ ${lista.length} imagen${lista.length > 1 ? 'es subidas' : ' subida'} correctamente`;
+  setTimeout(() => { statusEl.textContent = ''; }, 3000);
+}
+
+// Zona de arrastre
+zonaDrop.addEventListener('click', () => fileInput.click());
+zonaDrop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+zonaDrop.addEventListener('dragover',  (e) => { e.preventDefault(); zonaDrop.classList.add('drag-over'); });
+zonaDrop.addEventListener('dragleave', ()  => zonaDrop.classList.remove('drag-over'));
+zonaDrop.addEventListener('drop', (e) => {
+  e.preventDefault();
+  zonaDrop.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) subirArchivos(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) subirArchivos(fileInput.files);
+  fileInput.value = '';
+});
+
+// ─── Generación automática de slug ────────────────────────────────────────
+const fNombre = document.getElementById('f-nombre');
+const fSlug   = document.getElementById('f-slug');
+fNombre.addEventListener('input', () => {
+  if (esEdicion) return; // no sobreescribir slug en edición
+  fSlug.value = fNombre.value
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim().replace(/\s+/g, '-');
+});
+
+// ─── Envío del formulario ─────────────────────────────────────────────────
+formEl.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorEl.style.display = 'none';
+
+  if (galeria.length === 0) {
+    errorEl.textContent = 'Añade al menos una imagen principal.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  btnGuardar.disabled    = true;
+  btnGuardar.textContent = 'Guardando…';
+
+  const datos = {
+    nombre:              document.getElementById('f-nombre').value.trim(),
+    slug:                document.getElementById('f-slug').value.trim(),
+    categoria:           document.getElementById('f-categoria').value,
+    transmision:         document.getElementById('f-transmision').value,
+    combustible:         document.getElementById('f-combustible').value,
+    precioSinConductor:  parseFloat(document.getElementById('f-precio-sc').value),
+    precioConConductor:  parseFloat(document.getElementById('f-precio-cc').value),
+    plazas:              parseInt(document.getElementById('f-plazas').value, 10),
+    descripcion:         document.getElementById('f-desc').value.trim(),
+    descripcionLarga:    document.getElementById('f-desc-larga').value.trim(),
+    disponible:          document.getElementById('f-disponible').checked,
+    destacado:           document.getElementById('f-destacado').checked,
+    // galería: [0] = principal, resto = adicionales
+    imagenPrincipal:     galeria[0],
+    imagenes:            galeria.slice(1),
+  };
+
+  try {
+    const method = esEdicion ? 'PUT' : 'POST';
+    const res    = await fetch(accion, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      errorEl.textContent = json.error ?? 'Error desconocido';
+      errorEl.style.display = 'block';
+      return;
+    }
+    window.location.href = '/admin';
+  } catch {
+    errorEl.textContent = 'Error de red. Inténtalo de nuevo.';
+    errorEl.style.display = 'block';
+  } finally {
+    btnGuardar.disabled    = false;
+    btnGuardar.textContent = esEdicion ? 'Guardar cambios' : 'Crear vehículo';
+  }
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+sincronizar();
+renderGaleria();
+</script>

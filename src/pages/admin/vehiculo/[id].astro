@@ -1,0 +1,86 @@
+---
+/**
+ * /admin/vehiculo/[id] — Editar un vehículo existente
+ */
+export const prerender = false;
+import { obtenerVehiculoPorId } from '../../../lib/vehiculos';
+import FormVehiculo from '../../../components/admin/FormVehiculo.astro';
+
+const id = Number(Astro.params.id);
+if (isNaN(id) || id <= 0) return Astro.redirect('/admin', 302);
+
+const vehiculo = await obtenerVehiculoPorId(id);
+if (!vehiculo) return Astro.redirect('/admin', 302);
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar {vehiculo.nombre} — Admin Nourd Rent Car</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root { --bg:#1A1A2E; --bg2:#16213E; --accent:#C9A84C; --text:#F5F5F5; --muted:#9CA3AF; --border:rgba(255,255,255,.08); --r:.625rem; }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh; }
+    a { color:inherit; text-decoration:none; }
+    .topbar { position:sticky; top:0; z-index:40; display:flex; align-items:center;
+              justify-content:space-between; padding:0 1.5rem; height:60px;
+              background:var(--bg2); border-bottom:1px solid var(--border); }
+    .topbar-left  { display:flex; align-items:center; gap:.5rem; font-size:.875rem; color:var(--muted); }
+    .topbar-left a:hover { color:var(--accent); }
+    .topbar-logo  { height:32px; width:auto; }
+    .sep { color:var(--border); }
+    .container { max-width:860px; margin:0 auto; padding:2rem 1.5rem; }
+    .page-header { display:flex; align-items:flex-start; justify-content:space-between;
+                   gap:1rem; margin-bottom:1.75rem; flex-wrap:wrap; }
+    .page-title { font-size:1.35rem; font-weight:700; }
+    .page-meta  { font-size:.78rem; color:var(--muted); margin-top:.25rem; }
+    .preview-link { display:inline-flex; align-items:center; gap:.35rem;
+                    font-size:.8rem; color:var(--muted);
+                    border:1px solid var(--border); border-radius:var(--r);
+                    padding:.4rem .75rem; transition:color .2s,border-color .2s; }
+    .preview-link:hover { color:var(--accent); border-color:var(--accent); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="/logo.svg" class="topbar-logo" alt="Nourd Rent Car" />
+      <span class="sep">/</span>
+      <a href="/admin">Admin</a>
+      <span class="sep">/</span>
+      <span style="color:var(--text);">{vehiculo.nombre}</span>
+    </div>
+    <div>
+      <form method="POST" action="/api/admin/login?accion=logout" style="display:inline">
+        <button type="submit"
+                style="background:transparent;border:1px solid var(--border);color:var(--muted);
+                       padding:.35rem .75rem;border-radius:var(--r);cursor:pointer;font-size:.78rem;">
+          Cerrar sesión
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Editar vehículo</h1>
+        <p class="page-meta">ID #{vehiculo.id} · slug: {vehiculo.slug}</p>
+      </div>
+      <a href={`/vehiculo/${vehiculo.slug}`} target="_blank" class="preview-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+             style="width:14px;height:14px;" aria-hidden="true">
+          <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+          <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" clip-rule="evenodd"/>
+        </svg>
+        Ver en la web ↗
+      </a>
+    </div>
+
+    <FormVehiculo vehiculo={vehiculo} accion={`/api/vehiculos/${vehiculo.id}`} />
+  </main>
+</body>
+</html>

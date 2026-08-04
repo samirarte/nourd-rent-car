@@ -1,0 +1,57 @@
+---
+/**
+ * /admin/vehiculo/nuevo — Crear un nuevo vehículo
+ */
+export const prerender = false;
+import FormVehiculo from '../../../components/admin/FormVehiculo.astro';
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuevo vehículo — Admin Nourd Rent Car</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root { --bg:#1A1A2E; --bg2:#16213E; --accent:#C9A84C; --text:#F5F5F5; --muted:#9CA3AF; --border:rgba(255,255,255,.08); --r:.625rem; }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh; }
+    a { color:inherit; text-decoration:none; }
+    .topbar { position:sticky; top:0; z-index:40; display:flex; align-items:center;
+              justify-content:space-between; padding:0 1.5rem; height:60px;
+              background:var(--bg2); border-bottom:1px solid var(--border); }
+    .topbar-left  { display:flex; align-items:center; gap:.5rem; font-size:.875rem; color:var(--muted); }
+    .topbar-left a:hover { color:var(--accent); }
+    .topbar-logo  { height:32px; width:auto; }
+    .sep { color:var(--border); }
+    .container { max-width:860px; margin:0 auto; padding:2rem 1.5rem; }
+    .page-title { font-size:1.35rem; font-weight:700; margin-bottom:1.75rem; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="/logo.svg" class="topbar-logo" alt="Nourd Rent Car" />
+      <span class="sep">/</span>
+      <a href="/admin">Admin</a>
+      <span class="sep">/</span>
+      <span style="color:var(--text);">Nuevo vehículo</span>
+    </div>
+    <div>
+      <form method="POST" action="/api/admin/login?accion=logout" style="display:inline">
+        <button type="submit"
+                style="background:transparent;border:1px solid var(--border);color:var(--muted);
+                       padding:.35rem .75rem;border-radius:var(--r);cursor:pointer;font-size:.78rem;">
+          Cerrar sesión
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">Añadir nuevo vehículo</h1>
+    <FormVehiculo accion="/api/vehiculos" />
+  </main>
+</body>
+</html>
