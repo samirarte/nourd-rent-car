@@ -134,22 +134,22 @@ const galeriaInicial: string[] = esEdicion
 
   <!-- ── Sección 1: Identificación ── -->
   <div class="form-card" style="display:grid;gap:1rem;">
-    <p class="section-title">Identificación</p>
+    <p class="section-title">Identification</p>
     <div class="grid-2">
       <div class="field">
-        <label for="f-nombre">Nombre *</label>
+        <label for="f-nombre">Nom *</label>
         <input id="f-nombre" name="nombre" type="text" required
-               placeholder="Mercedes Clase E" value={vehiculo?.nombre ?? ''} />
+               placeholder="Mercedes Classe E" value={vehiculo?.nombre ?? ''} />
       </div>
       <div class="field">
-        <label for="f-slug">Slug * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(usado en la URL)</span></label>
+        <label for="f-slug">Slug * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(utilisé dans l'URL)</span></label>
         <input id="f-slug" name="slug" type="text" required
-               placeholder="mercedes-clase-e" value={vehiculo?.slug ?? ''} />
+               placeholder="mercedes-classe-e" value={vehiculo?.slug ?? ''} />
       </div>
     </div>
     <div class="grid-3">
       <div class="field">
-        <label for="f-categoria">Categoría *</label>
+        <label for="f-categoria">Catégorie *</label>
         <select id="f-categoria" name="categoria" required>
           {categorias.map(c => (
             <option value={c} selected={vehiculo?.categoria === c}>{c}</option>
@@ -157,7 +157,7 @@ const galeriaInicial: string[] = esEdicion
         </select>
       </div>
       <div class="field">
-        <label for="f-transmision">Transmisión</label>
+        <label for="f-transmision">Transmission</label>
         <select id="f-transmision" name="transmision">
           {transmisiones.map(t => (
             <option value={t} selected={vehiculo?.transmision === t}>{t}</option>
@@ -165,7 +165,7 @@ const galeriaInicial: string[] = esEdicion
         </select>
       </div>
       <div class="field">
-        <label for="f-combustible">Combustible</label>
+        <label for="f-combustible">Carburant</label>
         <select id="f-combustible" name="combustible">
           {combustibles.map(c => (
             <option value={c} selected={vehiculo?.combustible === c}>{c}</option>
@@ -177,20 +177,20 @@ const galeriaInicial: string[] = esEdicion
 
   <!-- ── Sección 2: Precios y specs ── -->
   <div class="form-card" style="display:grid;gap:1rem;">
-    <p class="section-title">Precios y especificaciones</p>
+    <p class="section-title">Prix et caractéristiques</p>
     <div class="grid-3">
       <div class="field">
-        <label for="f-precio-sc">€/día sin conductor *</label>
+        <label for="f-precio-sc">€/jour sans chauffeur *</label>
         <input id="f-precio-sc" name="precioSinConductor" type="number" min="0" step="0.01" required
                placeholder="45" value={vehiculo?.precioSinConductor ?? ''} />
       </div>
       <div class="field">
-        <label for="f-precio-cc">€/día con conductor *</label>
+        <label for="f-precio-cc">€/jour avec chauffeur *</label>
         <input id="f-precio-cc" name="precioConConductor" type="number" min="0" step="0.01" required
                placeholder="75" value={vehiculo?.precioConConductor ?? ''} />
       </div>
       <div class="field">
-        <label for="f-plazas">Plazas *</label>
+        <label for="f-plazas">Places *</label>
         <input id="f-plazas" name="plazas" type="number" min="1" max="20" required
                placeholder="5" value={vehiculo?.plazas ?? ''} />
       </div>
@@ -199,49 +199,49 @@ const galeriaInicial: string[] = esEdicion
       <label class="check-label">
         <input type="checkbox" id="f-disponible" style="accent-color:var(--success);"
                checked={vehiculo ? vehiculo.disponible : true} />
-        Disponible para reserva
+        Disponible à la réservation
       </label>
       <label class="check-label">
         <input type="checkbox" id="f-destacado" style="accent-color:var(--accent);"
                checked={vehiculo ? vehiculo.destacado : false} />
-        Destacado en la página de inicio
+        Mis en avant sur la page d'accueil
       </label>
     </div>
   </div>
 
   <!-- ── Sección 3: Descripciones ── -->
   <div class="form-card" style="display:grid;gap:1rem;">
-    <p class="section-title">Descripciones</p>
+    <p class="section-title">Descriptions</p>
     <div class="field">
-      <label for="f-desc">Descripción corta * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(aparece en la tarjeta del catálogo)</span></label>
+      <label for="f-desc">Description courte * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(affichée dans la carte du catalogue)</span></label>
       <input id="f-desc" name="descripcion" type="text" required
-             placeholder="Descripción breve para la tarjeta" value={vehiculo?.descripcion ?? ''} />
+             placeholder="Description brève pour la carte" value={vehiculo?.descripcion ?? ''} />
     </div>
     <div class="field">
-      <label for="f-desc-larga">Descripción completa * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(página de detalle)</span></label>
+      <label for="f-desc-larga">Description complète * <span style="font-weight:400;text-transform:none;font-size:.7rem;">(page de détail)</span></label>
       <textarea id="f-desc-larga" name="descripcionLarga" required rows="4"
-                placeholder="Descripción completa con todos los detalles del vehículo…">{vehiculo?.descripcionLarga ?? ''}</textarea>
+                placeholder="Description complète avec tous les détails du véhicule…">{vehiculo?.descripcionLarga ?? ''}</textarea>
     </div>
   </div>
 
   <!-- ── Sección 4: Galería de imágenes ── -->
   <div class="form-card" style="display:grid;gap:1rem;">
     <p class="section-title">
-      Galería de imágenes
+      Galerie de photos
       <span style="font-weight:400;text-transform:none;font-size:.7rem;color:var(--muted);margin-inline-start:.5rem;">
-        La primera imagen es la principal · Arrastra para reordenar
+        La première image est la principale · Glisser pour réorganiser
       </span>
     </p>
 
     <!-- Zona de arrastre / clic -->
-    <div id="zona-drop" tabindex="0" role="button" aria-label="Añadir imágenes">
+    <div id="zona-drop" tabindex="0" role="button" aria-label="Ajouter des images">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="1.5" style="width:2.5rem;height:2.5rem;color:var(--muted);margin:0 auto;">
         <path stroke-linecap="round" stroke-linejoin="round"
               d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
       </svg>
-      <p>Arrastra imágenes aquí o <span>haz clic para seleccionar</span></p>
-      <p style="font-size:.75rem;margin-top:.25rem;">JPEG, PNG, WebP, AVIF · Máx. 5 MB por imagen</p>
+      <p>Glisser des images ici ou <span>cliquer pour sélectionner</span></p>
+      <p style="font-size:.75rem;margin-top:.25rem;">JPEG, PNG, WebP, AVIF · Max. 5 Mo par image</p>
     </div>
     <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/avif"
            multiple capture="environment" style="display:none;" />
@@ -258,7 +258,7 @@ const galeriaInicial: string[] = esEdicion
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;" aria-hidden="true">
           <path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/>
         </svg>
-        Tomar foto con cámara
+        Prendre une photo avec la caméra
       </button>
       <button type="button" id="btn-archivo"
               style="flex:1;min-width:140px;display:inline-flex;align-items:center;justify-content:center;
@@ -271,7 +271,7 @@ const galeriaInicial: string[] = esEdicion
           <path d="M9.25 13.25a.75.75 0 0 0 1.5 0V4.636l2.955 3.129a.75.75 0 0 0 1.09-1.03l-4.25-4.5a.75.75 0 0 0-1.09 0l-4.25 4.5a.75.75 0 1 0 1.09 1.03L9.25 4.636v8.614Z"/>
           <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/>
         </svg>
-        Subir desde galería
+        Importer depuis la galerie
       </button>
     </div>
 
@@ -300,9 +300,9 @@ const galeriaInicial: string[] = esEdicion
 
   <!-- Acciones -->
   <div class="form-actions">
-    <a href="/admin" class="btn btn-ghost">Cancelar</a>
+    <a href="/admin" class="btn btn-ghost">Annuler</a>
     <button type="submit" id="btn-guardar" class="btn btn-primary">
-      {esEdicion ? 'Guardar cambios' : 'Crear vehículo'}
+      {esEdicion ? 'Enregistrer les modifications' : 'Créer le véhicule'}
     </button>
   </div>
 </form>
@@ -334,12 +334,12 @@ function renderGaleria() {
     item.innerHTML = `
       <img src="${url}" alt="Foto ${idx + 1}"
            onerror="this.src='/vehiculos/placeholder.jpg'" />
-      ${idx === 0 ? '<span class="foto-badge">Principal</span>' : ''}
+      ${idx === 0 ? '<span class="foto-badge">Principale</span>' : ''}
       <div class="foto-overlay">
-        ${idx > 0 ? `<button type="button" class="foto-btn" data-action="principal" title="Hacer principal">★</button>` : ''}
-        ${idx > 0 ? `<button type="button" class="foto-btn" data-action="izq" title="Mover izquierda">←</button>` : ''}
-        ${idx < galeria.length - 1 ? `<button type="button" class="foto-btn" data-action="der" title="Mover derecha">→</button>` : ''}
-        <button type="button" class="foto-btn del" data-action="del" title="Eliminar">✕</button>
+        ${idx > 0 ? `<button type="button" class="foto-btn" data-action="principal" title="Définir comme principale">★</button>` : ''}
+        ${idx > 0 ? `<button type="button" class="foto-btn" data-action="izq" title="Déplacer à gauche">←</button>` : ''}
+        ${idx < galeria.length - 1 ? `<button type="button" class="foto-btn" data-action="der" title="Déplacer à droite">→</button>` : ''}
+        <button type="button" class="foto-btn del" data-action="del" title="Supprimer">✕</button>
       </div>`;
 
     // Botones de acción
@@ -375,7 +375,7 @@ function renderGaleria() {
   });
 
   countEl.textContent = galeria.length
-    ? `${galeria.length} imagen${galeria.length > 1 ? 'es' : ''} · La primera es la principal`
+    ? `${galeria.length} image${galeria.length > 1 ? 's' : ''} · La première est la principale`
     : '';
 }
 
@@ -390,21 +390,21 @@ async function subirArchivos(archivos) {
 
   for (let i = 0; i < lista.length; i++) {
     const archivo = lista[i];
-    statusEl.textContent = `Subiendo ${i + 1}/${lista.length}: ${archivo.name}…`;
+    statusEl.textContent = `Envoi ${i + 1}/${lista.length} : ${archivo.name}…`;
     try {
       const fd = new FormData();
       fd.append('imagen', archivo);
       const res  = await fetch('/api/admin/upload', { method: 'POST', body: fd });
       const data = await res.json();
-      if (!res.ok) { statusEl.textContent = `Error: ${data.error}`; continue; }
+      if (!res.ok) { statusEl.textContent = `Erreur : ${data.error}`; continue; }
       galeria.push(data.url);
       sincronizar();
       renderGaleria();
     } catch (err) {
-      statusEl.textContent = `Error de red al subir ${archivo.name}`;
+      statusEl.textContent = `Erreur réseau lors de l'envoi de ${archivo.name}`;
     }
   }
-  statusEl.textContent = `✓ ${lista.length} imagen${lista.length > 1 ? 'es subidas' : ' subida'} correctamente`;
+  statusEl.textContent = `✓ ${lista.length} image${lista.length > 1 ? 's envoyées' : ' envoyée'} avec succès`;
   setTimeout(() => { statusEl.textContent = ''; }, 3000);
 }
 
@@ -455,13 +455,13 @@ formEl.addEventListener('submit', async (e) => {
   errorEl.style.display = 'none';
 
   if (galeria.length === 0) {
-    errorEl.textContent = 'Añade al menos una imagen principal.';
+    errorEl.textContent = 'Ajoutez au moins une image principale.';
     errorEl.style.display = 'block';
     return;
   }
 
   btnGuardar.disabled    = true;
-  btnGuardar.textContent = 'Guardando…';
+  btnGuardar.textContent = 'Enregistrement…';
 
   const datos = {
     nombre:              document.getElementById('f-nombre').value.trim(),
@@ -490,17 +490,17 @@ formEl.addEventListener('submit', async (e) => {
     });
     const json = await res.json();
     if (!res.ok) {
-      errorEl.textContent = json.error ?? 'Error desconocido';
+      errorEl.textContent = json.error ?? 'Erreur inconnue';
       errorEl.style.display = 'block';
       return;
     }
     window.location.href = '/admin';
   } catch {
-    errorEl.textContent = 'Error de red. Inténtalo de nuevo.';
+    errorEl.textContent = 'Erreur réseau. Veuillez réessayer.';
     errorEl.style.display = 'block';
   } finally {
     btnGuardar.disabled    = false;
-    btnGuardar.textContent = esEdicion ? 'Guardar cambios' : 'Crear vehículo';
+    btnGuardar.textContent = esEdicion ? 'Enregistrer les modifications' : 'Créer le véhicule';
   }
 });
 

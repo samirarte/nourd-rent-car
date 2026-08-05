@@ -13,11 +13,11 @@ const vehiculo = await obtenerVehiculoPorId(id);
 if (!vehiculo) return Astro.redirect('/admin', 302);
 ---
 <!doctype html>
-<html lang="es">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Editar {vehiculo.nombre} — Admin Nourd Rent Car</title>
+  <title>Modifier {vehiculo.nombre} — Admin Nourd Rent Car</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
@@ -58,7 +58,7 @@ if (!vehiculo) return Astro.redirect('/admin', 302);
         <button type="submit"
                 style="background:transparent;border:1px solid var(--border);color:var(--muted);
                        padding:.35rem .75rem;border-radius:var(--r);cursor:pointer;font-size:.78rem;">
-          Cerrar sesión
+          Déconnexion
         </button>
       </form>
     </div>
@@ -67,8 +67,8 @@ if (!vehiculo) return Astro.redirect('/admin', 302);
   <main class="container">
     <div class="page-header">
       <div>
-        <h1 class="page-title">Editar vehículo</h1>
-        <p class="page-meta">ID #{vehiculo.id} · slug: {vehiculo.slug}</p>
+        <h1 class="page-title">Modifier le véhicule</h1>
+        <p class="page-meta">ID #{vehiculo.id} · slug : {vehiculo.slug}</p>
       </div>
       <a href={`/vehiculo/${vehiculo.slug}`} target="_blank" class="preview-link">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
@@ -76,7 +76,7 @@ if (!vehiculo) return Astro.redirect('/admin', 302);
           <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
           <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" clip-rule="evenodd"/>
         </svg>
-        Ver en la web ↗
+        Voir sur le site ↗
       </a>
     </div>
 

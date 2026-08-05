@@ -6,11 +6,11 @@ export const prerender = false;
 import FormVehiculo from '../../../components/admin/FormVehiculo.astro';
 ---
 <!doctype html>
-<html lang="es">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nuevo vehículo — Admin Nourd Rent Car</title>
+  <title>Nouveau véhicule — Admin Nourd Rent Car</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
@@ -36,21 +36,21 @@ import FormVehiculo from '../../../components/admin/FormVehiculo.astro';
       <span class="sep">/</span>
       <a href="/admin">Admin</a>
       <span class="sep">/</span>
-      <span style="color:var(--text);">Nuevo vehículo</span>
+      <span style="color:var(--text);">Nouveau véhicule</span>
     </div>
     <div>
       <form method="POST" action="/api/admin/login?accion=logout" style="display:inline">
         <button type="submit"
                 style="background:transparent;border:1px solid var(--border);color:var(--muted);
                        padding:.35rem .75rem;border-radius:var(--r);cursor:pointer;font-size:.78rem;">
-          Cerrar sesión
+          Déconnexion
         </button>
       </form>
     </div>
   </header>
 
   <main class="container">
-    <h1 class="page-title">Añadir nuevo vehículo</h1>
+    <h1 class="page-title">Ajouter un nouveau véhicule</h1>
     <FormVehiculo accion="/api/vehiculos" />
   </main>
 </body>

@@ -8,11 +8,11 @@ const error = Astro.url.searchParams.get('error');
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Acceso administración — Nourd Rent Car</title>
+  <title>Accès administration — Nourd Rent Car</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
@@ -110,11 +110,11 @@ const error = Astro.url.searchParams.get('error');
     <div class="logo">
       <img src="/logo.svg" alt="Nourd Rent Car" />
     </div>
-    <h1>Panel de administración</h1>
-    <p class="subtitulo">Introduce la contraseña para continuar</p>
+    <h1>Panneau d'administration</h1>
+    <p class="subtitulo">Entrez le mot de passe pour continuer</p>
 
     <form method="POST" action="/api/admin/login">
-      <label for="password">Contraseña</label>
+      <label for="password">Mot de passe</label>
       <input
         type="password"
         id="password"
@@ -125,12 +125,12 @@ const error = Astro.url.searchParams.get('error');
         placeholder="••••••••"
       />
       {error && (
-        <p class="error" role="alert">Contraseña incorrecta. Inténtalo de nuevo.</p>
+        <p class="error" role="alert">Mot de passe incorrect. Veuillez réessayer.</p>
       )}
-      <button type="submit">Acceder</button>
+      <button type="submit">Accéder</button>
     </form>
 
-    <a href="/" class="volver">← Volver al sitio</a>
+    <a href="/" class="volver">← Retour au site</a>
   </div>
 </body>
 </html>

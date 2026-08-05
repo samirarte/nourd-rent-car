@@ -8,11 +8,11 @@ import { obtenerTodosLosVehiculos } from '../../lib/vehiculos';
 const vehiculos = await obtenerTodosLosVehiculos();
 ---
 <!doctype html>
-<html lang="es">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Administración — Nourd Rent Car</title>
+  <title>Administration — Nourd Rent Car</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
@@ -77,9 +77,9 @@ const vehiculos = await obtenerTodosLosVehiculos();
       <span>/ Admin</span>
     </div>
     <div class="topbar-actions">
-      <a href="/" class="btn btn-ghost btn-sm" target="_blank">Ver web ↗</a>
+      <a href="/" class="btn btn-ghost btn-sm" target="_blank">Voir le site ↗</a>
       <form method="POST" action="/api/admin/login?accion=logout" style="display:inline">
-        <button type="submit" class="btn btn-ghost btn-sm">Cerrar sesión</button>
+        <button type="submit" class="btn btn-ghost btn-sm">Déconnexion</button>
       </form>
     </div>
   </header>
@@ -87,16 +87,16 @@ const vehiculos = await obtenerTodosLosVehiculos();
   <main class="container">
     <!-- Stats -->
     <div class="stats">
-      <div class="stat"><div class="stat-valor">{vehiculos.length}</div><div class="stat-label">Total vehículos</div></div>
+      <div class="stat"><div class="stat-valor">{vehiculos.length}</div><div class="stat-label">Total véhicules</div></div>
       <div class="stat"><div class="stat-valor">{vehiculos.filter(v=>v.disponible).length}</div><div class="stat-label">Disponibles</div></div>
-      <div class="stat"><div class="stat-valor">{vehiculos.filter(v=>v.destacado).length}</div><div class="stat-label">Destacados</div></div>
-      <div class="stat"><div class="stat-valor">{[...new Set(vehiculos.map(v=>v.categoria))].length}</div><div class="stat-label">Categorías</div></div>
+      <div class="stat"><div class="stat-valor">{vehiculos.filter(v=>v.destacado).length}</div><div class="stat-label">En vedette</div></div>
+      <div class="stat"><div class="stat-valor">{[...new Set(vehiculos.map(v=>v.categoria))].length}</div><div class="stat-label">Catégories</div></div>
     </div>
 
     <!-- Cabecera + acción -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
-      <h1 style="font-size:1.25rem;font-weight:700;">Flota de vehículos</h1>
-      <a href="/admin/vehiculo/nuevo" class="btn btn-primary">+ Añadir vehículo</a>
+      <h1 style="font-size:1.25rem;font-weight:700;">Flotte de véhicules</h1>
+      <a href="/admin/vehiculo/nuevo" class="btn btn-primary">+ Ajouter un véhicule</a>
     </div>
 
     <!-- Tabla -->
@@ -104,16 +104,16 @@ const vehiculos = await obtenerTodosLosVehiculos();
       <table>
         <thead>
           <tr>
-            <th>Foto</th>
+            <th>Photo</th>
             <th>ID</th>
-            <th>Nombre / Slug</th>
-            <th>Categoría</th>
-            <th>Galería</th>
-            <th>Sin conductor</th>
-            <th>Con conductor</th>
+            <th>Nom / Slug</th>
+            <th>Catégorie</th>
+            <th>Galerie</th>
+            <th>Sans chauffeur</th>
+            <th>Avec chauffeur</th>
             <th>Disponible</th>
-            <th>Destacado</th>
-            <th>Acciones</th>
+            <th>En vedette</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -134,18 +134,18 @@ const vehiculos = await obtenerTodosLosVehiculos();
               </td>
               <td><span class="badge badge-cat">{v.categoria}</span></td>
               <td style="font-size:.78rem;color:var(--muted);text-align:center;">
-                {v.imagenes.length + 1} foto{v.imagenes.length !== 0 ? 's' : ''}
+                {v.imagenes.length + 1} photo{v.imagenes.length !== 0 ? 's' : ''}
               </td>
               <td>{v.precioSinConductor} €/día</td>
               <td>{v.precioConConductor} €/día</td>
-              <td><span class={`badge ${v.disponible ? 'badge-si':'badge-no'}`}>{v.disponible ? 'Sí':'No'}</span></td>
-              <td><span class={`badge ${v.destacado ? 'badge-si':'badge-no'}`}>{v.destacado ? 'Sí':'No'}</span></td>
+              <td><span class={`badge ${v.disponible ? 'badge-si':'badge-no'}`}>{v.disponible ? 'Oui':'Non'}</span></td>
+              <td><span class={`badge ${v.destacado ? 'badge-si':'badge-no'}`}>{v.destacado ? 'Oui':'Non'}</span></td>
               <td>
                 <div class="acciones">
-                  <a href={`/admin/vehiculo/${v.id}`} class="btn btn-ghost btn-sm">Editar</a>
+                  <a href={`/admin/vehiculo/${v.id}`} class="btn btn-ghost btn-sm">Modifier</a>
                   <button class="btn btn-danger btn-sm"
                           onclick={`pedirEliminar(${v.id},'${v.nombre.replace(/'/g,"\\'")}')`}>
-                    Eliminar
+                    Supprimer
                   </button>
                 </div>
               </td>
@@ -160,11 +160,11 @@ const vehiculos = await obtenerTodosLosVehiculos();
   <div id="modal-del" class="overlay" role="dialog" aria-modal="true" aria-labelledby="del-titulo">
     <div class="modal-box">
       <div style="font-size:2.5rem;margin-bottom:1rem;">⚠️</div>
-      <h2 id="del-titulo" style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem;">¿Eliminar vehículo?</h2>
+      <h2 id="del-titulo" style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem;">Supprimer ce véhicule ?</h2>
       <p id="del-msg" style="color:var(--muted);font-size:.875rem;margin-bottom:1.5rem;"></p>
       <div style="display:flex;gap:.75rem;justify-content:center;">
-        <button onclick="cerrarDel()" class="btn btn-ghost">Cancelar</button>
-        <button id="del-ok" class="btn btn-danger">Sí, eliminar</button>
+        <button onclick="cerrarDel()" class="btn btn-ghost">Annuler</button>
+        <button id="del-ok" class="btn btn-danger">Oui, supprimer</button>
       </div>
     </div>
   </div>
@@ -175,7 +175,7 @@ const vehiculos = await obtenerTodosLosVehiculos();
     function pedirEliminar(id, nombre) {
       delId = id;
       document.getElementById('del-msg').textContent =
-        `Esta acción eliminará permanentemente "${nombre}" y no se puede deshacer.`;
+        `Cette action supprimera définitivement "${nombre}" et ne peut pas être annulée.`;
       document.getElementById('modal-del').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -189,15 +189,15 @@ const vehiculos = await obtenerTodosLosVehiculos();
     document.getElementById('del-ok').addEventListener('click', async () => {
       if (!delId) return;
       const btn = document.getElementById('del-ok');
-      btn.disabled = true; btn.textContent = 'Eliminando…';
+      btn.disabled = true; btn.textContent = 'Suppression…';
       try {
         const res  = await fetch(`/api/vehiculos/${delId}`, { method: 'DELETE' });
         const data = await res.json();
-        if (!res.ok) { alert(data.error ?? 'Error al eliminar'); return; }
+        if (!res.ok) { alert(data.error ?? 'Erreur lors de la suppression'); return; }
         cerrarDel();
         window.location.reload();
-      } catch { alert('Error de red.'); }
-      finally { btn.disabled = false; btn.textContent = 'Sí, eliminar'; }
+      } catch { alert('Erreur réseau.'); }
+      finally { btn.disabled = false; btn.textContent = 'Oui, supprimer'; }
     });
 
     // Cerrar overlay al clic fuera
