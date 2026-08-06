@@ -3,20 +3,25 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "deploy": "npm run build && npx wrangler pages deploy ./dist --project-name=nourd-rent-car",
+    "deploy:list": "npx wrangler pages deployment list --project-name=nourd-rent-car"
   },
   "dependencies": {
-    "@astrojs/node": "^11.0.3",
-    "@astrojs/vercel": "^11.0.4",
+    "@astrojs/cloudflare": "^14.1.7",
     "@libsql/client": "^0.17.4",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.1.6",
     "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@astrojs/node": "^11.0.3",
+    "wrangler": "^4.119.0"
   }
 }

@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Deploy to Cloudflare Pages",
+      "trigger": "UserPromptSubmit",
+      "matcher": "deploy|despliega|cloudflare|wrangler",
+      "action": {
+        "type": "agent",
+        "prompt": "Quand l'utilisateur demande un déploiement vers Cloudflare Pages, rappelle-lui d'exécuter `npm run deploy` dans le terminal. Ce script effectue d'abord `astro build` puis `wrangler pages deploy ./dist --project-name=nourd-rent-car`. Les variables d'environnement CLOUDFLARE_API_TOKEN et CLOUDFLARE_ACCOUNT_ID doivent être configurées au préalable."
+      }
+    }
+  ]
+}
