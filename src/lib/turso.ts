@@ -9,11 +9,12 @@
 
 import { createClient } from '@libsql/client';
 
-// Validación de variables de entorno en tiempo de build
-const url   = import.meta.env.TURSO_DATABASE_URL;
-const token = import.meta.env.TURSO_AUTH_TOKEN;
+// Lee variables tanto en Vite/Astro como en entornos Node locales.
+const nodeEnv = typeof process !== 'undefined' ? process.env : {};
+const TURSO_DATABASE_URL = import.meta.env.TURSO_DATABASE_URL || nodeEnv.TURSO_DATABASE_URL;
+const TURSO_AUTH_TOKEN = import.meta.env.TURSO_AUTH_TOKEN || nodeEnv.TURSO_AUTH_TOKEN;
 
-if (!url) {
+if (!TURSO_DATABASE_URL) {
   throw new Error(
     '[turso] Variable de entorno TURSO_DATABASE_URL no definida. ' +
     'Copia .env.example a .env y configura tus credenciales.'
@@ -26,6 +27,6 @@ if (!url) {
  * (útil para desarrollo con un archivo .db local).
  */
 export const turso = createClient({
-  url,
-  authToken: token,
+  url: TURSO_DATABASE_URL,
+  authToken: TURSO_AUTH_TOKEN,
 });
